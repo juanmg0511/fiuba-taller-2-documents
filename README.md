@@ -1,2 +1,7 @@
-# 7552.1c2020
-TP de taller II
+# fiuba-taller-2-auth-documents
+
+TP de taller II - Chotuve
+1c2020
+
+Documentación del proyecto
+Administración del proyecto
