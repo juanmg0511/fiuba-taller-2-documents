@@ -52,6 +52,23 @@ components:
         last_name:
           type: string
         contact:
-          type: string
+          type: object
+          properties:
+            type: object
+            phone:
+              type: string
+            email:
+              type: string
+        profile_picture:
+          type: object
+          properties:
+            id:
+              type: integer
+            url:
+              type: string
+
+            
+
+        
 
        
