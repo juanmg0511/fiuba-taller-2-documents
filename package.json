@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/juanmg0511/fiuba-taller-2-documents/issues"
   },
-  "homepage": "https://github.com/juanmg0511/fiuba-taller-2-documents#readme"
+  "homepage": "https://github.com/juanmg0511/fiuba-taller-2-documents#readme",
+  "devDependencies": {
+    "husky": "^4.2.5"
+  }
 }
