@@ -1,0 +1,19 @@
+{
+  "name": "fiuba-taller-2-documents",
+  "version": "1.0.0",
+  "description": "TP de taller II - Chotuve 1c2020",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanmg0511/fiuba-taller-2-documents.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juanmg0511/fiuba-taller-2-documents/issues"
+  },
+  "homepage": "https://github.com/juanmg0511/fiuba-taller-2-documents#readme"
+}
