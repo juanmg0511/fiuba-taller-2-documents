@@ -23,6 +23,7 @@ paths:
                     description: Base64-encoded contents of the avatar image
   /users:
     get:
+      summary: List all Users
       responses:
         '200':
           description: Users List
