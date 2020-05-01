@@ -27,7 +27,7 @@ paths:
       summary: List all Users
       responses:
         '200':
-          description: Users List
+          description: List all Users
           content:
             application/json:
               schema:
