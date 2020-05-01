@@ -40,7 +40,18 @@ components:
       type: object
       properties:
         id:
+          type: integer
+        date_created:
           type: string
-        name:
+        date_updated:
           type: string
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        contact:
+          type: string
+
        
