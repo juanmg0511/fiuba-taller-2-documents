@@ -6,6 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx redoc-cli bundle apirest.yaml"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/juanmg0511/fiuba-taller-2-documents.git"
