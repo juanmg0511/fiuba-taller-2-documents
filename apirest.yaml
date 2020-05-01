@@ -5,6 +5,7 @@ info:
 paths:
   /ping:
     get:
+      summary: Ping
       responses:
         '200':
           description: A User object
