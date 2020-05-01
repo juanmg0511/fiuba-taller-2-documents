@@ -21,3 +21,12 @@ paths:
                     type: string
                     format: byte
                     description: Base64-encoded contents of the avatar image
+  /users:
+    get:
+      responses:
+        '200':
+          description: Users List
+          content:
+            application/json:
+              schema:
+                type: array
