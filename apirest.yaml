@@ -2,9 +2,17 @@ openapi: "3.0.0"
 info:
   title: Chotuve API Reference
   version: 1.0.0
+
 paths:
   /ping:
     get:
+      servers:
+        - url: https://fiuba-taller-2-media-server.herokuapp.com/
+          description: Media Server
+        - url: https://...herokuapp.com/
+          description: Auth Server
+        - url: https://...herokuapp.com/
+          description: App Server
       summary: Ping
       responses:
         '200':
