@@ -54,7 +54,6 @@ components:
         contact:
           type: object
           properties:
-            type: object
             phone:
               type: string
             email:
