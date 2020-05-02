@@ -2,7 +2,6 @@ openapi: "3.0.0"
 info:
   title: Chotuve API Reference
   version: 1.0.0
-
 paths:
   /ping:
     get:
@@ -11,71 +10,218 @@ paths:
           description: Media Server
         - url: https://...herokuapp.com/
           description: Auth Server
-        - url: https://...herokuapp.com/
+        - url: https://choutuve-app-server.herokuapp.com/
           description: App Server
-      summary: Ping
+      summary: Server status
+      operationId: ping
+      tags:
+        - ping
       responses:
         '200':
-          description: A User object
+          description: OK
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  username:
-                    type: string
-                  password:
-                      type: string
-                  avatar:          # <-- image embedded into JSON
-                    type: string
-                    format: byte
-                    description: Base64-encoded contents of the avatar image
+                type: string
+                example: pong
   /users:
     get:
-      summary: List all Users
+      summary: List all users
+      operationId: listUsers
+      tags:
+        - users
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
       responses:
         '200':
-          description: List all Users
+          description: A paged array of users
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Users"
+        default:
+          description: unexpected error
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a users
+      operationId: createUsers
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'  
+      responses:
+        '201':
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/{userId}:
+    get:
+      summary: Info for a specific user
+      operationId: showUserById
+      tags:
+        - users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound' 
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Modify a specific user
+      operationId: updateUserById
+      tags:
+        - users
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User' 
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The id of the user to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     User:
       type: object
+      required:
+        - username
+        - first_name
+        - last_name
+        - contact
       properties:
         id:
           type: integer
-        date_created:
-          type: string
-        date_updated:
-          type: string
+          format: int64
+          readOnly: true
         username:
           type: string
+        password:
+          type: string
+          writeOnly: true
         first_name:
           type: string
         last_name:
           type: string
         contact:
+          $ref: '#/components/schemas/ContactInfo'
+        avatar:
+          $ref: '#/components/schemas/Picture'
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Users:
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
+    Picture:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        url:
+          type: string
+    ContactInfo:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        data:
           type: object
-          properties:
-            phone:
-              type: string
-            email:
-              type: string
-        profile_picture:
-          type: object
-          properties:
-            id:
-              type: integer
-            url:
-              type: string
-
-            
-
-        
-
-       
