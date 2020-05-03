@@ -4,7 +4,9 @@
   "description": "TP de taller II - Chotuve 1c2020",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mock-media-server": "open-api-mocker -s 'docs-media-server/apirest.yaml' -p '5000:5000' jormaechea/open-api-mocker",
+    "mock-app-server": "open-api-mocker -s 'docs-app-server/apirest.yaml' -p '5000:5000' jormaechea/open-api-mocker"
   },
   "husky": {
     "hooks": {
