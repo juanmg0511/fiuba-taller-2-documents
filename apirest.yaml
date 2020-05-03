@@ -27,25 +27,15 @@ paths:
   /users:
     get:
       summary: List all users
-      operationId: listUsers
+      operationId: getUsers
       tags:
         - users
       parameters:
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
       responses:
         '200':
           description: A paged array of users
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:    
               schema:
@@ -57,8 +47,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Create a users
-      operationId: createUsers
+      summary: Create user
+      operationId: createUser
       tags:
         - users
       requestBody:
@@ -74,18 +64,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          links:
+            GetUserByUserId:
+              operationId: getUser
+              parameters:
+                userId: '$response.body#/id'
+              description: >
+                The `id` value returned in the response can be used as
+                the `userId` parameter in `GET /users/{userId}`.
+            UpdateUserByUserId:
+              operationId: putUser
+              parameters:
+                userId: '$response.body#/id'
+              description: >
+                The `id` value returned in the response can be used as
+                the `userId` parameter in `PUT /users/{userId}`. 
+        '400':
+          $ref: "#/components/responses/BadRequest"
         '401':
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
   /users/{userId}:
     get:
       summary: Info for a specific user
-      operationId: showUserById
+      operationId: getUser
       tags:
         - users
       parameters:
@@ -102,23 +109,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        '400':
+          $ref: "#/components/responses/BadRequest"
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
         '404':
-          $ref: '#/components/responses/NotFound' 
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
     put:
-      summary: Modify a specific user
-      operationId: updateUserById
+      summary: Update user data
+      operationId: putUser
       tags:
         - users
       requestBody:
-        required: false
+        required: true
         content:
           application/json:
             schema:
@@ -137,14 +144,174 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /friendrequests:
+    get:
+      summary: List all frienrequests
+      operationId: getFriendRequests
+      tags:
+        - friendrequests
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of friend requests
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/FriendRequests"
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a friend request
+      operationId: createFriendRequest
+      tags:
+        - friendrequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendRequest'  
+      responses:
+        '201':
+          description: Friend request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequest"
+          links:
+            GetFriendRequestById:
+              operationId: getFriendRequests
+              parameters:
+                friendRequestId: '$response.body#/id'
+              description: >
+                The `id` value returned in the response can be used as
+                the `friendRequestId` parameter in `GET /friendrequests/{friendRequestId}`.
+            UpdateFriendRequestById:
+              operationId: putFriendRequest
+              parameters:
+                friendRequestId: '$response.body#/id'
+              description: >
+                The `id` value returned in the response can be used as
+                the `friendRequestId` parameter in `PUT /friendrequests/{friendRequestId}`. 
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /friendrequests/{friendRequestId}:
+    get:
+      summary: Info for specific friend request
+      operationId: getFriendRequest
+      tags:
+        - friendrequests
+      parameters:
+        - name: friendRequestId
+          in: path
+          required: true
+          description: The id of the friend request to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friend request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequest"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    put:
+      summary: Update friend request data
+      operationId: putFriendRequest
+      tags:
+        - friendrequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendRequest' 
+      parameters:
+        - name: friendRequestId
+          in: path
+          required: true
+          description: The id of the friend request to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FriendRequest"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
 components:
+  parameters:
+    offsetParam:
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: The numbers of items to return.
   responses:
+    BadRequest:
+      description: Bad request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     NotFound:
       description: The specified resource was not found
       content:
@@ -153,6 +320,18 @@ components:
             $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: 5XX Server Error
       content:
         application/json:
           schema:
@@ -212,6 +391,41 @@ components:
           format: email
         phone:
           type: string
+    FriendRequest:
+      type: object
+      required:
+        - from
+        - to
+        - message
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        from:
+          type: integer
+          format: int64
+          readOnly: true
+        to:
+          type: integer
+          format: int64
+          readOnly: true
+        message:
+          type: string
+        status:
+          type: string
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    FriendRequests:
+      type: array
+      items:
+        $ref: "#/components/schemas/FriendRequest"
     Error:
       type: object
       required:
