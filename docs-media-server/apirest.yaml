@@ -8,15 +8,29 @@ servers:
 paths:
   /list:
     get:
-      summary: Server status
-      operationId: ping
+      summary: List Videos
       tags:
-        - ping
+        - videos
       responses:
         '200':
           description: OK
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: pong
+                type: array
+                items:
+                  $ref: "#/components/schemas/Video"
+components:
+  schemas:
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        duration:
+          type: string
+        author:
+          type: string
+  
