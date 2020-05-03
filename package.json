@@ -8,7 +8,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx redoc-cli bundle apirest.yaml && mv redoc-static.html index.html && git add index.html"
+      "pre-commit": "npx redoc-cli bundle --output ./docs-app-server/api.html ./docs-app-server/apirest.yaml && git add ./docs-app-server/api.html && npx redoc-cli bundle --output ./docs-app-server/api.html ./docs-app-server/apirest.yaml && git add ./docs-app-server/api.html"
     }
   },
   "repository": {
