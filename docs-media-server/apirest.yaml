@@ -17,20 +17,28 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Video"
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Video"
 components:
   schemas:
     Video:
       type: object
       properties:
         id:
-          type: integer
-        title:
           type: string
-        duration:
+        name:
           type: string
-        author:
+        dateCreated:
           type: string
+        size:
+          type: string
+        type:
+          type: string
+        url:
+          type: string
+
   
