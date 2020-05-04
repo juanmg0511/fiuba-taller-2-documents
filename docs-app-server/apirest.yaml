@@ -2,16 +2,12 @@ openapi: "3.0.0"
 info:
   title: Chotuve API Reference
   version: 1.0.0
+servers:
+  - url: https://choutuve-app-server.herokuapp.com/
+    description: App Server
 paths:
   /ping:
     get:
-      servers:
-        - url: https://fiuba-taller-2-media-server.herokuapp.com/
-          description: Media Server
-        - url: https://...herokuapp.com/
-          description: Auth Server
-        - url: https://choutuve-app-server.herokuapp.com/
-          description: App Server
       summary: Server status
       operationId: ping
       tags:
@@ -24,6 +20,31 @@ paths:
               schema:
                 type: string
                 example: pong
+  /auth:
+    post:
+      summary: Autenticate user
+      operationId: authUser
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'  
+      responses:
+        '200':
+          description: Auth Token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
   /users:
     get:
       summary: List users
@@ -337,6 +358,24 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
+    AuthUser:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    AuthToken:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
     User:
       type: object
       required:
