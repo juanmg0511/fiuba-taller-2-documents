@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "mock-media-server": "open-api-mocker -s 'docs-media-server/apirest.yaml' -p '5000:5000' jormaechea/open-api-mocker",
     "mock-app-server": "open-api-mocker -s 'docs-app-server/apirest.yaml' -p '5000:5000' jormaechea/open-api-mocker"
+    "mock-auth-server": "open-api-mocker -s 'docs-auth-server/apirest.yaml' -p '5000:5000' jormaechea/open-api-mocker"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npx redoc-cli bundle --output ./docs-app-server/api.html ./docs-app-server/apirest.yaml && git add ./docs-app-server/api.html && npx redoc-cli bundle --output ./docs-app-server/api.html ./docs-app-server/apirest.yaml && git add ./docs-app-server/api.html"
+      "pre-commit": "npx redoc-cli bundle --output ./docs-media-server/api.html ./docs-media-server/apirest.yaml && git add ./docs-media-server/api.html && npx redoc-cli bundle --output ./docs-app-server/api.html ./docs-app-server/apirest.yaml && git add ./docs-app-server/api.html  && npx redoc-cli bundle --output ./docs-auth-server/api.html ./docs-auth-server/apirest.yaml && git add ./docs-auth-server/api.html"
     }
   },
   "repository": {

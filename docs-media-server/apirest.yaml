@@ -19,12 +19,54 @@ paths:
               schema:
                 type: object
                 properties:
-                  videos:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Video"
+                  videoName:
+                    $ref: "#/components/schemas/Video"
+  /status:
+    get:
+      summary: Get server health
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+  /ping:
+    get:
+      summary: Ping server
+      tags:
+        - health
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Ping received!"
+
 components:
   schemas:
+    Status:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Health'
+
+    Health:
+      type: object
+      properties:
+        server_status:
+          type: string
+        database_status:
+          type: string
+
     Video:
       type: object
       properties:
@@ -40,5 +82,5 @@ components:
           type: string
         url:
           type: string
-
-  
+        thumb:
+          type: string
