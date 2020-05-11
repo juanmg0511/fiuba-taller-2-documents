@@ -1,6 +1,4 @@
-node_modules
-
-#misc
-.idea
-redoc-static.html
-*.log
+_site
+.sass-cache
+.jekyll-metadata
+/.idea
