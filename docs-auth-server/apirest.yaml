@@ -227,6 +227,16 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user 'JuanManuel' not found.
+                data: null
     put:
       summary: Update user
       operationId: putUser
@@ -316,7 +326,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User' 
+              $ref: '#/components/schemas/PatchUser' 
       parameters:
         - name: userName
           in: path
@@ -577,6 +587,16 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user 'JuanManuel' not found.
+                data: null
     put:
       summary: Update admin user
       operationId: putAdminUser
@@ -662,7 +682,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdminUser' 
+              $ref: '#/components/schemas/PatchUser' 
       parameters:
         - name: userName
           in: path
@@ -994,6 +1014,42 @@ paths:
                 code: -1
                 message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
                 data: null
+  /recovery/{userName}:
+    get:
+      summary: User password recovery
+      operationId: passwordRecovery
+      tags:
+        - recovery
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to recover password
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '501':
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: -1
+                message: "TBD, coming soon!"
+                data: {}
                 
 components:
   schemas:
@@ -1008,27 +1064,24 @@ components:
         password:
           type: string
           format: password
-    Session:
+    PatchUser:
       type: object
       required:
-        - username
+        - op
+        - path
+        - value
       properties:
-        username:
+        op:
           type: string
-        session_token:
+        path:
           type: string
-        expires:
+        value:
           type: string
-          format: date-time
-          readOnly: true
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
     AdminUser:
       type: object
       required:
         - username
+        - password
         - first_name
         - last_name
         - email
@@ -1061,6 +1114,7 @@ components:
       type: object
       required:
         - username
+        - password
         - first_name
         - last_name
         - contact
@@ -1134,6 +1188,23 @@ components:
               readOnly: true
         data:
           type: object
+    Session:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+        session_token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
     OK:
       type: object
       required:
