@@ -6,9 +6,24 @@ servers:
   - url: https://choutuve-auth-server.herokuapp.com/
     description: Auth Server
 paths:
+  /:
+    get:
+      summary: Home
+      operationId: home
+      tags:
+        - home
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+                example: fiuba-taller-2-auth-server-v1.00
+
   /ping:
     get:
-      summary: Server status
+      summary: Returns a ping message from server
       operationId: ping
       tags:
         - ping
@@ -16,130 +31,202 @@ paths:
         '200':
           description: OK
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: pong
-  /auth:
-    post:
-      summary: Autenticate user
-      operationId: authUser
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: "Ping."
+                data: {}
+  /status:
+    get:
+      summary: Returns satus information from server
+      operationId: status
       tags:
-        - auth
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthUser'
+        - status
       responses:
         '200':
-          description: Auth Token
+          description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthToken"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+                $ref: "#/components/schemas/Status"
+              example:
+                code: 0
+                message: fiuba-taller-2-auth-server-v1.00
+                'data:':
+                  server_status: online
+                  database_status: online
+  /stats:
+    get:
+      summary: Returns usage statistics from server
+      operationId: stats
+      tags:
+        - stats
+      responses:
+        '501':
+          description: Not implemented
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: -1
+                message: "TBD, coming soon!"
+                data: {}
   /users:
     get:
-      summary: List users
+      summary: Get all users
       operationId: getUsers
       tags:
         - users
       parameters:
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       responses:
         '200':
-          description: A paged array of users
+          description: An array of users
           content:
-            application/json:
+            application/json:    
               schema:
                 $ref: "#/components/schemas/Users"
-        default:
-          description: unexpected error
+              example:
+              - id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                contact:
+                  email: juan@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
+        '401':
+          description: Access error
           content:
-            application/json:
+            application/json:    
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
     post:
-      summary: Create user
+      summary: Create a user
       operationId: createUser
       tags:
         - users
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/User'  
       responses:
         '201':
-          description: User data
+          description: "New user created"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-          links:
-            GetUserByUserId:
-              operationId: getUser
-              parameters:
-                userId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `userId` parameter in `GET /users/{userId}`.
-            UpdateUserByUserId:
-              operationId: putUser
-              parameters:
-                userId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `userId` parameter in `PUT /users/{userId}`.
         '400':
-          $ref: "#/components/responses/BadRequest"
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)/ user already exists (-4)"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-  /users/{userId}:
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+  /users/{userName}:
     get:
       summary: Get user
       operationId: getUser
       tags:
         - users
       parameters:
-        - name: userId
+        - name: userName
           in: path
           required: true
-          description: The id of the user to retrieve
+          description: The username of the user to retrieve
           schema:
             type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       responses:
         '200':
-          description: User data
+          description: A user
           content:
-            application/json:
+            application/json:    
               schema:
-                $ref: "#/components/schemas/User"
-        '400':
-          $ref: "#/components/responses/BadRequest"
+                $ref: "#/components/schemas/Users"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                contact:
+                  email: juan@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
     put:
       summary: Update user
       operationId: putUser
@@ -150,213 +237,765 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/User' 
       parameters:
-        - name: userId
+        - name: userName
           in: path
           required: true
           description: The id of the user to update
           schema:
             type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       responses:
         '200':
-          description: Expected response to a valid request
+          description: User updated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                contact:
+                  email: juan@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: '2020-05-09T22:18:05.458187'
         '400':
-          $ref: "#/components/responses/BadRequest"
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-  /friendrequests:
-    get:
-      summary: List friend requests
-      operationId: getFriendRequests
-      tags:
-        - friendrequests
-      parameters:
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
-      responses:
-        '200':
-          description: A paged array of friend requests
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FriendRequests"
-        default:
-          description: unexpected error
-          content:
-            application/json:
+            application/json:            
               schema:
                 $ref: "#/components/schemas/Error"
-    post:
-      summary: Create friend request
-      operationId: createFriendRequest
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'JuanManuel' not found.
+                data: null
+    patch:
+      summary: Update user password
+      operationId: patchUser
       tags:
-        - friendrequests
+        - users
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequest'
+              $ref: '#/components/schemas/User' 
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The id of the user to update
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: User password updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: User 'JuanManuel' password updated.
+                data: null              
+        '400':
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'JuanManuel' not found.
+                data: null
+    delete:
+      summary: Delete user
+      operationId: deleteUser
+      tags:
+        - users
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to delete
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: User 'JuanManuel' deleted.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'JuanManuel' not found.
+                data: null
+  /adminusers:
+    get:
+      summary: Get all admin users
+      operationId: getAdminUsers
+      tags:
+        - adminusers
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: An array of admin users
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/AdminUsers"
+              example:
+              - id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                email: juan@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create an admin user
+      operationId: createAdminUser
+      tags:
+        - adminusers
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUser'  
       responses:
         '201':
-          description: Friend request data
+          description: "New admin user created"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FriendRequest"
-          links:
-            GetFriendRequestById:
-              operationId: getFriendRequests
-              parameters:
-                friendRequestId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `friendRequestId` parameter in `GET /friendrequests/{friendRequestId}`.
-            UpdateFriendRequestById:
-              operationId: putFriendRequest
-              parameters:
-                friendRequestId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `friendRequestId` parameter in `PUT /friendrequests/{friendRequestId}`.
+                $ref: "#/components/schemas/AdminUser"
         '400':
-          $ref: "#/components/responses/BadRequest"
+          description: "Bad request: missing required arguments (-1) / user already exists (-2)"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-  /friendrequests/{friendRequestId}:
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+  /adminusers/{userName}:
     get:
-      summary: Get friend request
-      operationId: getFriendRequest
+      summary: Get admin user
+      operationId: getAdminUser
       tags:
-        - friendrequests
+        - adminusers
       parameters:
-        - name: friendRequestId
+        - name: userName
           in: path
           required: true
-          description: The id of the friend request to retrieve
+          description: The username of the admin user to retrieve
           schema:
             type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       responses:
         '200':
-          description: Friend request data
+          description: An admin user
           content:
-            application/json:
+            application/json:    
               schema:
-                $ref: "#/components/schemas/FriendRequest"
-        '400':
-          $ref: "#/components/responses/BadRequest"
+                $ref: "#/components/schemas/AdminUsers"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                email: juan@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
     put:
-      summary: Update friend request
-      operationId: putFriendRequest
+      summary: Update admin user
+      operationId: putAdminUser
       tags:
-        - friendrequests
+        - adminusers
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequest'
+              $ref: '#/components/schemas/User' 
       parameters:
-        - name: friendRequestId
+        - name: userName
           in: path
           required: true
-          description: The id of the friend request to update
+          description: The id of the user to update
           schema:
             type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
       responses:
         '200':
-          description: Expected response to a valid request
+          description: Admin user updated
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FriendRequest"
+                $ref: "#/components/schemas/User"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: JuanManuel
+                first_name: Juan Manuel
+                last_name: Gonzalez
+                email: juan@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: '2020-05-09T22:18:05.458187'
         '400':
-          $ref: "#/components/responses/BadRequest"
+          description: "Bad request: missing required arguments (-1)"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
         '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user 'JuanManuel' not found.
+                data: null
+    patch:
+      summary: Update admin user password
+      operationId: patchAdminUser
+      tags:
+        - adminusers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUser' 
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The usename of the admin user to update
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: Admin user password updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Admin user 'JuanManuel' password updated.
+                data: null              
+        '400':
+          description: "Bad request: missing required arguments (-1)"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user 'JuanManuel' not found.
+                data: null
+    delete:
+      summary: Delete admin user
+      operationId: deleteAdminUser
+      tags:
+        - adminusers
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The id of the user to delete
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: Admin user deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Admin user 'JuanManuel' deleted.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user 'JuanManuel' not found.
+                data: null
+  /sessions:
+    get:
+      summary: Get all sessions
+      operationId: getAllSessions
+      tags:
+        - sessions
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: An array of sessions
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Session"
+              example:
+              - id: 5eb8cdb1ec54d8c9b812c074 
+                username: chotuvegod
+                session_token: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create a session
+      operationId: createSessions
+      tags:
+        - sessions
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'  
+      responses:
+        '201':
+          description: New session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        '400':
+          description: "Bad request: missing required arguments"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1) / wrong username or password (-2)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."
+                data: null
+  /sessions/{token}:
+    get:
+      summary: Get session
+      operationId: getSession
+      tags:
+        - sessions
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: The token of the session to retrieve
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: A session
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Session"
+              example:
+                id: 5eb8cdb1ec54d8c9b812c074
+                username: chotuvegod
+                session_token: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."
+                data: null
+    delete:
+      summary: Delete session
+      operationId: deleteSession
+      tags:
+        - sessions
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: The token of the session to delete
+          schema:
+            type: string
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: Session deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' deleted.
+                data: null
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
+                data: null
+                
 components:
-  parameters:
-    offsetParam:
-      in: query
-      name: offset
-      required: false
-      schema:
-        type: integer
-        minimum: 0
-        default: 0
-      description: The number of items to skip before starting to collect the result set.
-    limitParam:
-      in: query
-      name: limit
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 50
-        default: 20
-      description: The numbers of items to return.
-  responses:
-    BadRequest:
-      description: Bad request.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Error"
-    NotFound:
-      description: The specified resource was not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Forbidden:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    ServerError:
-      description: 5XX Server Error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
     AuthUser:
       type: object
@@ -369,13 +1008,55 @@ components:
         password:
           type: string
           format: password
-    AuthToken:
+    Session:
       type: object
       required:
-        - token
+        - username
       properties:
-        token:
+        username:
           type: string
+        session_token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+    AdminUser:
+      type: object
+      required:
+        - username
+        - first_name
+        - last_name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
     User:
       type: object
       required:
@@ -409,6 +1090,10 @@ components:
           type: string
           format: date-time
           readOnly: true
+    AdminUsers:
+      type: array
+      items:
+        $ref: "#/components/schemas/AdminUser"
     Users:
       type: array
       items:
@@ -416,10 +1101,6 @@ components:
     Picture:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
         url:
           type: string
     ContactInfo:
@@ -430,42 +1111,7 @@ components:
           format: email
         phone:
           type: string
-    FriendRequest:
-      type: object
-      required:
-        - from
-        - to
-        - message
-      properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
-        from:
-          type: integer
-          format: int64
-          readOnly: true
-        to:
-          type: integer
-          format: int64
-          readOnly: true
-        message:
-          type: string
-        status:
-          type: string
-        date_created:
-          type: string
-          format: date-time
-          readOnly: true
-        date_updated:
-          type: string
-          format: date-time
-          readOnly: true
-    FriendRequests:
-      type: array
-      items:
-        $ref: "#/components/schemas/FriendRequest"
-    Error:
+    Status:
       type: object
       required:
         - code
@@ -475,6 +1121,48 @@ components:
           type: integer
           format: int32
         message:
-          type: string
+          type: object
+          required:
+            - server_status
+            - database_status
+          properties:
+            server_status:
+              type: string
+              readOnly: true
+            database_status:
+              type: string
+              readOnly: true
         data:
           type: object
+    OK:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        data:
+          type: object
+          readOnly: true
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        data:
+          type: object
+          readOnly: true
