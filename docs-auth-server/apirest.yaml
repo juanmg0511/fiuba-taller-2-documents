@@ -247,7 +247,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User' 
+              $ref: '#/components/schemas/UserPut' 
       parameters:
         - name: userName
           in: path
@@ -607,7 +607,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User' 
+              $ref: '#/components/schemas/AdminUserPut' 
       parameters:
         - name: userName
           in: path
@@ -633,7 +633,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/AdminUser"
               example:
                 id: 5eb72ba5d2824353b87e5e94
                 username: JuanManuel
@@ -823,7 +823,7 @@ paths:
           content:
             application/json:    
               schema:
-                $ref: "#/components/schemas/Session"
+                $ref: "#/components/schemas/Sessions"
               example:
               - id: 5eb8cdb1ec54d8c9b812c074 
                 username: chotuvegod
@@ -1014,10 +1014,113 @@ paths:
                 code: -1
                 message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
                 data: null
+  /recovery:
+    get:
+      summary: Get all recovery requests
+      operationId: getAllRecovery
+      tags:
+        - recovery
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      responses:
+        '200':
+          description: An array of recovery requests
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Recoveries"
+              example:
+              - id: 5eb8cdb1ec54d8c9b812c074 
+                username: chotuvegod
+                recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create a recovery request
+      operationId: createRecovery
+      tags:
+        - recovery
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryUser'  
+      responses:
+        '201':
+          description: New recovery request created (sends email to user)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recovery"
+        '400':
+          description: "Bad request: missing required arguments"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'JuanManuel' not found.
+                data: null
   /recovery/{userName}:
     get:
-      summary: User password recovery
-      operationId: passwordRecovery
+      summary: View recovery request for user
+      operationId: viewRecoveryRequest
       tags:
         - recovery
       parameters:
@@ -1040,17 +1143,109 @@ paths:
           required: false
           description: a unique identifier for this request
       responses:
-        '501':
-          description: Not implemented
+        '200':
+          description: A recovery request
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Recovery"
+              example:
+                id: 5eb8cdb1ec54d8c9b812c074
+                username: chotuvegod
+                recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error (-1) / Recovery key expired (-2)
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: User not found error (-1) / Recovery request not found (-2)
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "User 'JuanManuel' not found."
+                data: null
+    post:
+      summary: Reset a password
+      operationId: resetPassword
+      tags:
+        - recovery
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to recover password
+          schema:
+            type: string      
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'  
+      responses:
+        '200':
+          description: New session created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: "Password for user 'JuanManuel' was reset."
+                data: null
+        '400':
+          description: "Bad request: missing required arguments"
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
               example:
                 code: -1
-                message: "TBD, coming soon!"
-                data: {}
-                
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1) / expired recovery key (-2) / wrong recovery key (-3)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: User not found error (-1) / Recovery request not found (-2)
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "User 'JuanManuel' not found."
+                data: null
 components:
   schemas:
     AuthUser:
@@ -1110,6 +1305,32 @@ components:
           type: string
           format: date-time
           readOnly: true
+    AdminUserPut:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
     User:
       type: object
       required:
@@ -1128,6 +1349,33 @@ components:
         password:
           type: string
           writeOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        contact:
+          $ref: '#/components/schemas/ContactInfo'
+        avatar:
+          $ref: '#/components/schemas/Picture'
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    UserPut:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - contact
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
         first_name:
           type: string
         last_name:
@@ -1188,10 +1436,54 @@ components:
               readOnly: true
         data:
           type: object
+    Recoveries:
+      type: array
+      items:
+        $ref: "#/components/schemas/Recovery"
+    Recovery:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+        recovery_key:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+    RecoveryUser:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+    RecoveryPassword:
+      type: object
+      required:
+        - username
+        - new_password
+      properties:
+        username:
+          type: string
+        new_password:
+          type: string
+    Sessions:
+      type: array
+      items:
+        $ref: "#/components/schemas/Session"
     Session:
       type: object
       required:
         - username
+        - session_token
+        - expires
       properties:
         username:
           type: string
