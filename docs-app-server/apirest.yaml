@@ -6,69 +6,142 @@ servers:
   - url: https://choutuve-app-server.herokuapp.com/
     description: App Server
 paths:
+  /:
+    get:
+      summary: Home
+      security: []
+      operationId: home
+      tags:
+        - home
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Welcome to Choutuve Application Server API (V1)!
+
   /ping:
     get:
-      summary: Server status
+      summary: Returns a ping message from server
+      security: []
       operationId: ping
       tags:
         - ping
       responses:
         '200':
           description: OK
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             text/plain:
               schema:
                 type: string
-                example: pong
-  /auth:
-    post:
-      summary: Autenticate user
-      operationId: authUser
+                example: Pong!
+  /status:
+    get:
+      summary: Returns satus information from server
+      security: []
+      operationId: status
       tags:
-        - auth
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AuthUser'  
+        - status
       responses:
         '200':
-          description: Auth Token
+          description: OK
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthToken"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-  /users:
+                $ref: "#/components/schemas/Status"
+              example:
+                code: 0
+                message: fiuba-taller-2-app-server
+                'data:':
+                  server_status: online
+                  database_status: online
+  /stats:
     get:
-      summary: List users
+      summary: Returns usage statistics from server
+      operationId: stats
+      tags:
+        - stats
+      responses:
+        '501':
+          description: Not implemented
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: -1
+                message: "TBD, coming soon!"
+                data: {}
+  /users:
+    get:      
+      summary: Get all users
       operationId: getUsers
       tags:
         - users
-      parameters:
-        - $ref: '#/components/parameters/offsetParam'
-        - $ref: '#/components/parameters/limitParam'
       responses:
         '200':
-          description: A paged array of users
+          description: An array of users
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:    
               schema:
                 $ref: "#/components/schemas/Users"
-        default:
-          description: unexpected error
+              example:
+              - id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test
+                last_name: User
+                contact:
+                  email: testuser@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
-            application/json:
+            application/json:    
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
     post:
-      summary: Create user
+      summary: Create a user
+      security: []
       operationId: createUser
       tags:
         - users
@@ -80,66 +153,113 @@ paths:
               $ref: '#/components/schemas/User'  
       responses:
         '201':
-          description: User data
+          description: "New user created"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-          links:
-            GetUserByUserId:
-              operationId: getUser
-              parameters:
-                userId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `userId` parameter in `GET /users/{userId}`.
-            UpdateUserByUserId:
-              operationId: putUser
-              parameters:
-                userId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `userId` parameter in `PUT /users/{userId}`. 
         '400':
-          $ref: "#/components/responses/BadRequest"
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)/ user already exists (-4)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-  /users/{userId}:
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+  /users/{userName}:
     get:
       summary: Get user
       operationId: getUser
       tags:
         - users
       parameters:
-        - name: userId
+        - name: userName
           in: path
           required: true
-          description: The id of the user to retrieve
+          description: The username of the user to retrieve
           schema:
             type: string
       responses:
         '200':
-          description: User data
-          content:
-            application/json:
+          description: A user
+          headers:
+            X-Request-ID:
               schema:
-                $ref: "#/components/schemas/User"
-        '400':
-          $ref: "#/components/responses/BadRequest"
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Users"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test
+                last_name: User
+                contact:
+                  email: testuser@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
         '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user testuser not found.
+                data: null
     put:
       summary: Update user
       operationId: putUser
@@ -150,9 +270,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User' 
+              $ref: '#/components/schemas/UserPut' 
       parameters:
-        - name: userId
+        - name: userName
           in: path
           required: true
           description: The id of the user to update
@@ -160,21 +280,1067 @@ paths:
             type: string
       responses:
         '200':
-          description: Expected response to a valid request
+          description: User updated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test
+                last_name: User
+                contact:
+                  email: testuser@example.com
+                  phone: +54 11 5555 5555
+                avatar:
+                  url: 'http://www.google.com/'
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: '2020-05-09T22:18:05.458187'
         '400':
-          $ref: "#/components/responses/BadRequest"
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
         '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
         '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User testuser not found.
+                data: null
+    patch:
+      summary: Update user password
+      operationId: patchUser
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUser' 
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The id of the user to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User password updated
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: User testuser password updated.
+                data: null              
+        '400':
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'testuser' not found.
+                data: null
+    delete:
+      summary: Delete user
+      operationId: deleteUser
+      tags:
+        - users
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User deleted
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: User testuser deleted.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'testuser' not found.
+                data: null
+  /adminusers:
+    get:
+      summary: Get all admin users
+      operationId: getAdminUsers
+      tags:
+        - adminusers
+      responses:
+        '200':
+          description: An array of admin users
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/AdminUsers"
+              example:
+              - id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test
+                last_name: User
+                email: testuser@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create an admin user
+      security: []
+      operationId: createAdminUser
+      tags:
+        - adminusers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUser'  
+      responses:
+        '201':
+          description: "New admin user created"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        '400':
+          description: "Bad request: missing required arguments (-1) / user already exists (-2)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+  /adminusers/{userName}:
+    get:
+      summary: Get admin user
+      operationId: getAdminUser
+      tags:
+        - adminusers
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the admin user to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An admin user
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/AdminUsers"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test                
+                last_name: User
+                email: testuser@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user testuser not found.
+                data: null
+    put:
+      summary: Update admin user
+      operationId: putAdminUser
+      tags:
+        - adminusers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUserPut' 
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The id of the user to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Admin user updated
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+              example:
+                id: 5eb72ba5d2824353b87e5e94
+                username: testuser
+                first_name: Test
+                last_name: User
+                email: testuser@example.com
+                date_created: '2020-05-09T22:16:05.458187'
+                date_updated: '2020-05-09T22:18:05.458187'
+        '400':
+          description: "Bad request: missing required arguments (-1)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user testuser not found.
+                data: null
+    patch:
+      summary: Update admin user password
+      operationId: patchAdminUser
+      tags:
+        - adminusers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchUser' 
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The usename of the admin user to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Admin user password updated
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Admin user testuser password updated.
+                data: null              
+        '400':
+          description: "Bad request: missing required arguments (-1)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user testuser not found.
+                data: null
+    delete:
+      summary: Delete admin user
+      operationId: deleteAdminUser
+      tags:
+        - adminusers
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The id of the user to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Admin user deleted
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Admin user testuser deleted.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Admin user testuser not found.
+                data: null
+  /sessions:
+    get:
+      summary: Get all sessions
+      operationId: getAllSessions
+      tags:
+        - sessions
+      responses:
+        '200':
+          description: An array of sessions
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Sessions"
+              example:
+              - id: 5eb8cdb1ec54d8c9b812c074 
+                username: chotuvegod
+                session_token: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create a session
+      security: []
+      operationId: createSessions
+      tags:
+        - sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthUser'  
+      responses:
+        '201':
+          description: New session created
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        '400':
+          description: "Bad request: missing required arguments"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1) / wrong username or password (-2)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token d9f6c4b4-933b-11ea-9566-72ba225d89f0 was found."
+                data: null
+  /sessions/{token}:
+    get:
+      summary: Get session
+      operationId: getSession
+      tags:
+        - sessions
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: The token of the session to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A session
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Session"
+              example:
+                id: 5eb8cdb1ec54d8c9b812c074
+                username: chotuvegod
+                session_token: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token d9f6c4b4-933b-11ea-9566-72ba225d89f0 was found."
+                data: null
+    delete:
+      summary: Delete session
+      operationId: deleteSession
+      tags:
+        - sessions
+      parameters:
+        - name: token
+          in: path
+          required: true
+          description: The token of the session to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session deleted
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: Session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' deleted.
+                data: null
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
+                data: null
+  /recovery:
+    get:
+      summary: Get all recovery requests
+      operationId: getAllRecovery
+      tags:
+        - recovery
+      responses:
+        '200':
+          description: An array of recovery requests
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Recoveries"
+              example:
+              - id: 5eb8cdb1ec54d8c9b812c074 
+                username: chotuvegod
+                recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+    post:
+      summary: Create a recovery request
+      security: []
+      operationId: createRecovery
+      tags:
+        - recovery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecoveryUser'  
+      responses:
+        '201':
+          description: New recovery request created (sends email to user)
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recovery"
+        '400':
+          description: "Bad request: missing required arguments"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: Not found error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User testuser not found.
+                data: null
+  /recovery/{userName}:
+    get:
+      summary: View recovery request for user
+      operationId: viewRecoveryRequest
+      tags:
+        - recovery
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to recover password
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A recovery request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Recovery"
+              example:
+                id: 5eb8cdb1ec54d8c9b812c074
+                username: chotuvegod
+                recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
+                expires: '2020-05-11T05:59:45.740404'
+                date_created: '2020-05-11T03:59:45.740445'
+        '401':
+          description: Access error (-1) / Recovery key expired (-2)
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: User not found error (-1) / Recovery request not found (-2)
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "User testuser not found."
+                data: null
+    post:
+      summary: Reset a password
+      security: []
+      operationId: resetPassword
+      tags:
+        - recovery
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to recover password
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recovery_key
+                - password
+              properties:
+                recovery_key:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: New session created
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+              example:
+                code: 0
+                message: "Password for user testuser was reset."
+                data: null
+        '400':
+          description: "Bad request: missing required arguments"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:            
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null
+        '401':
+          description: "Access error: invalid API key (-1) / expired recovery key (-2) / wrong recovery key (-3)"
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
+        '404':
+          description: User not found error (-1) / Recovery request not found (-2)
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "User 'username' not found."
+                data: null
   /friendrequests:
     get:
       summary: List friend requests
@@ -211,6 +1377,11 @@ paths:
       responses:
         '201':
           description: Friend request data
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:
               schema:
@@ -256,6 +1427,11 @@ paths:
       responses:
         '200':
           description: Friend request data
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:
               schema:
@@ -291,6 +1467,11 @@ paths:
       responses:
         '200':
           description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
           content:
             application/json:
               schema:
@@ -305,9 +1486,187 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
+  /videos:
+    get:
+      summary: List videos
+      operationId: getVideos
+      tags:
+        - videos
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of videos
+          content:
+            application/json:    
+              schema:
+                type: object
+                properties:
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Video"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Post new video
+      operationId: postVideo
+      tags:
+        - videos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /videos/{videoId}:
+    get:
+      summary: Get video
+      operationId: getVideo
+      tags:
+        - videos
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video data
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    put:
+      summary: Update video
+      operationId: putVideo
+      tags:
+        - videos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video' 
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video to update
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Video"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete video
+      operationId: deleteVideo
+      tags:
+        - videos
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
 components:
+  securitySchemes:
+    AuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token 
   parameters:
-    offsetParam:
+    offsetParam: 
       in: query
       name: offset
       required: false
@@ -329,30 +1688,55 @@ components:
   responses:
     BadRequest:
       description: Bad request.
+      headers:
+        X-Request-ID:
+          schema:
+            type: string
+          description: Request unique identifier.
       content:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
     NotFound:
       description: The specified resource was not found
+      headers:
+        X-Request-ID:
+          schema:
+            type: string
+          description: Request unique identifier.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
     Unauthorized:
       description: Unauthorized
+      headers:
+        X-Request-ID:
+          schema:
+            type: string
+          description: Request unique identifier.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
     Forbidden:
       description: Forbidden
+      headers:
+        X-Request-ID:
+          schema:
+            type: string
+          description: Request unique identifier.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
     ServerError:
       description: 5XX Server Error
+      headers:
+        X-Request-ID:
+          schema:
+            type: string
+          description: Request unique identifier.
       content:
         application/json:
           schema:
@@ -369,17 +1753,83 @@ components:
         password:
           type: string
           format: password
-    AuthToken:
+    PatchUser:
       type: object
       required:
-        - token
+        - op
+        - path
+        - value
       properties:
-        token:
+        op:
           type: string
+        path:
+          type: string
+        value:
+          type: string
+    AdminUser:
+      type: object
+      required:
+        - username
+        - password
+        - first_name
+        - last_name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    AdminUserPut:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
     User:
       type: object
       required:
         - username
+        - password
         - first_name
         - last_name
         - contact
@@ -409,6 +1859,37 @@ components:
           type: string
           format: date-time
           readOnly: true
+    UserPut:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - contact
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        first_name:
+          type: string
+        last_name:
+          type: string
+        contact:
+          $ref: '#/components/schemas/ContactInfo'
+        avatar:
+          $ref: '#/components/schemas/Picture'
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    AdminUsers:
+      type: array
+      items:
+        $ref: "#/components/schemas/AdminUser"
     Users:
       type: array
       items:
@@ -416,10 +1897,6 @@ components:
     Picture:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-          readOnly: true
         url:
           type: string
     ContactInfo:
@@ -430,6 +1907,90 @@ components:
           format: email
         phone:
           type: string
+    Status:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: object
+          required:
+            - server_status
+            - database_status
+          properties:
+            server_status:
+              type: string
+              readOnly: true
+            database_status:
+              type: string
+              readOnly: true
+        data:
+          type: object
+    Recoveries:
+      type: array
+      items:
+        $ref: "#/components/schemas/Recovery"
+    Recovery:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+        recovery_key:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+    RecoveryUser:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+    RecoveryPassword:
+      type: object
+      required:
+        - username
+        - new_password
+      properties:
+        username:
+          type: string
+        new_password:
+          type: string
+    Sessions:
+      type: array
+      items:
+        $ref: "#/components/schemas/Session"
+    Session:
+      type: object
+      required:
+        - username
+        - session_token
+        - expires
+      properties:
+        username:
+          type: string
+        session_token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
     FriendRequest:
       type: object
       required:
@@ -465,6 +2026,101 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/FriendRequest"
+    Video:
+      type: object
+      required:
+        - media
+        - visibility
+      properties:
+        id:
+          type: string
+          example: 379824269sd9382ss7
+          readOnly: true
+        title:
+          type: string
+          example: One title
+        description:
+          type: string
+          example: One description
+        visibility:
+          type: string
+          example: private
+        media:
+          $ref: '#/components/schemas/Media'
+        location:
+          $ref: '#/components/schemas/Location'
+        statics:
+          type: object
+          format: json
+          readOnly: true
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Comment:
+      type: object
+      required:
+        - message
+      properties:
+        id:
+          type: string
+          example: 87593dsf73f908
+          readOnly: true
+        message:
+          type: string
+          example: Que buen video!!
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Media:
+      type: object
+      required:
+        - url
+      properties:
+        id:
+          type: number
+          readOnly: true
+          example: 232
+        url:
+          type: string
+          example: http://myvideo.com/video
+    Location:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          example: -58.416572
+        longitude:
+          type: number
+          example: -34.6024161
+    OK:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        data:
+          type: object
+          readOnly: true
     Error:
       type: object
       required:
@@ -474,7 +2130,12 @@ components:
         code:
           type: integer
           format: int32
+          readOnly: true
         message:
           type: string
+          readOnly: true
         data:
           type: object
+          readOnly: true
+security:
+  - AuthToken: []
