@@ -49,15 +49,15 @@ paths:
                 example: "Ping received!"
   /videos:
     get:
-      summary: Obtiene todos los videos
-      description: Este endpoint además ofrece un filtro q para obtener videos con el id pasado como parámetro
+      summary: Get videos
+      description: This endpoint also offers a q filter to obtain videos with the id passed as parameter
       parameters:
         - in: query
           name: id
           required: false
           schema:
             type: string
-          description: El id del video a obtener
+          description: video ID that wants to get
       tags:
         - videos
       responses:
@@ -73,7 +73,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/OutputVideo'
     post:
-      summary: Agrega un nuevo video
+      summary: Add a new video
       tags:
         - videos
       requestBody:
