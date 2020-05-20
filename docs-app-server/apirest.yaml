@@ -2049,7 +2049,7 @@ components:
           $ref: '#/components/schemas/Media'
         location:
           $ref: '#/components/schemas/Location'
-        statics:
+        statistics:
           type: object
           format: json
           readOnly: true
