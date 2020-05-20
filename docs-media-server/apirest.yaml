@@ -8,6 +8,7 @@ servers:
 paths:
   /list:
     get:
+      deprecated: true
       summary: List Videos
       tags:
         - videos
@@ -20,7 +21,7 @@ paths:
                 type: object
                 properties:
                   videoName:
-                    $ref: "#/components/schemas/Video"
+                    $ref: "#/components/schemas/OutputVideo"
   /status:
     get:
       summary: Get server health
@@ -46,6 +47,63 @@ paths:
               schema:
                 type: string
                 example: "Ping received!"
+  /videos:
+    get:
+      summary: Obtiene todos los videos
+      description: Este endpoint además ofrece un filtro q para obtener videos con el id pasado como parámetro
+      parameters:
+        - in: query
+          name: id
+          required: false
+          schema:
+            type: string
+          description: El id del video a obtener
+      tags:
+        - videos
+      responses:
+        '200':
+          description: A paged array of videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videos:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OutputVideo'
+    post:
+      summary: Agrega un nuevo video
+      tags:
+        - videos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputVideo'
+      responses:
+        '201':
+          description: Video recently added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputVideo'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputVideo'
+
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputVideo'
+
+
 
 components:
   schemas:
@@ -67,10 +125,24 @@ components:
         database_status:
           type: string
 
-    Video:
+    InputVideo:
       type: object
       properties:
-        id:
+        video_id:
+          type: string
+        name:
+          type: string
+        date_created:
+          type: string
+        size:
+          type: string
+        type:
+          type: string
+
+    OutputVideo:
+      type: object
+      properties:
+        video_id:
           type: string
         name:
           type: string
@@ -83,4 +155,10 @@ components:
         url:
           type: string
         thumb:
+          type: string
+
+    Error:
+      type: object
+      properties:
+        error:
           type: string
