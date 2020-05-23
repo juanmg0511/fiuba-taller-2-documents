@@ -1134,7 +1134,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RecoveryUser'  
+              $ref: '#/components/schemas/RecoveryUser'
       responses:
         '201':
           description: New recovery request created (sends email to user)
@@ -1155,7 +1155,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1170,7 +1170,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1185,7 +1185,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1214,7 +1214,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Recovery"
               example:
@@ -1231,7 +1231,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1246,7 +1246,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1271,15 +1271,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - recovery_key
-                - password
-              properties:
-                recovery_key:
-                  type: string
-                password:
-                  type: string
+              $ref: '#/components/schemas/RecoveryPassword'
       responses:
         '200':
           description: New session created
@@ -1304,7 +1296,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1319,7 +1311,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1334,7 +1326,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1348,15 +1340,42 @@ paths:
       tags:
         - friendrequests
       parameters:
+        - name: id
+          in: query
+          required: false
+          description: The id of the friend request
+          schema:
+            type: string
+        - name: from_user
+          in: query
+          required: false
+          description: The id of the user who request
+          schema:
+            type: string
+        - name: to_user
+          in: query
+          required: false
+          description: The id of the user requested
+          schema:
+            type: string
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200':
           description: A paged array of friend requests
           content:
-            application/json:    
+            application/json:
               schema:
-                $ref: "#/components/schemas/FriendRequests"
+                type: object
+                properties:
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FriendRequest"
         default:
           description: unexpected error
           content:
@@ -1373,7 +1392,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequest'  
+              $ref: '#/components/schemas/FriendRequest'
       responses:
         '201':
           description: Friend request data
@@ -1386,21 +1405,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FriendRequest"
-          links:
-            GetFriendRequestById:
-              operationId: getFriendRequests
-              parameters:
-                friendRequestId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `friendRequestId` parameter in `GET /friendrequests/{friendRequestId}`.
-            UpdateFriendRequestById:
-              operationId: putFriendRequest
-              parameters:
-                friendRequestId: '$response.body#/id'
-              description: >
-                The `id` value returned in the response can be used as
-                the `friendRequestId` parameter in `PUT /friendrequests/{friendRequestId}`. 
         '400':
           $ref: "#/components/responses/BadRequest"
         '401':
@@ -1446,9 +1450,9 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
-    put:
-      summary: Update friend request
-      operationId: putFriendRequest
+    patch:
+      summary: Update status friend request
+      operationId: patchFriendRequest
       tags:
         - friendrequests
       requestBody:
@@ -1456,7 +1460,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequest' 
+              $ref: '#/components/schemas/PatchFriendRequest'
       parameters:
         - name: friendRequestId
           in: path
@@ -1486,6 +1490,40 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete friend request
+      operationId: deleteFriendRequest
+      tags:
+        - friendrequests
+      parameters:
+        - name: friendRequestId
+          in: path
+          required: true
+          description: The id of the friend request to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
   /videos:
     get:
       summary: List videos
@@ -1493,13 +1531,32 @@ paths:
       tags:
         - videos
       parameters:
+        - name: id
+          in: query
+          required: false
+          description: The id of the comment
+          schema:
+            type: string
+        - name: user
+          in: query
+          required: false
+          description: The id of the user who post the video
+          schema:
+            type: string
+        - name: visibility
+          in: query
+          required: false
+          description: The visibility type of the video
+          example: private / public
+          schema:
+            type: string
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200':
           description: A paged array of videos
           content:
-            application/json:    
+            application/json:
               schema:
                 type: object
                 properties:
@@ -1595,7 +1652,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Video' 
+              $ref: '#/components/schemas/Video'
       parameters:
         - name: videoId
           in: path
@@ -1659,14 +1716,176 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
+  /comments:
+    get:
+      summary: List comments
+      operationId: getComments
+      tags:
+        - comments
+      parameters:
+        - name: id
+          in: query
+          required: false
+          description: The id of the comment
+          schema:
+            type: string
+        - name: video
+          in: query
+          required: false
+          description: The id of the video comments
+          schema:
+            type: string
+        - name: parent
+          in: query
+          required: false
+          description: The id of the parent comment
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of comments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Comment"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Post new comment
+      operationId: postComment
+      tags:
+        - comments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /comments/{commentId}:
+    get:
+      summary: Get comment
+      operationId: getComment
+      tags:
+        - comments
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: The id of the comment to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comment data
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete comment
+      operationId: deleteComment
+      tags:
+        - comments
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: The id of the comment to delete
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
 components:
   securitySchemes:
     AuthToken:
       type: apiKey
       in: header
-      name: X-Auth-Token 
+      name: X-Auth-Token
   parameters:
-    offsetParam: 
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 10
+        maximum: 50
+        default: 10
+      description: The numbers of items to return.
+      example: 10
+    offsetParam:
       in: query
       name: offset
       required: false
@@ -1674,17 +1893,8 @@ components:
         type: integer
         minimum: 0
         default: 0
-      description: The number of items to skip before starting to collect the result set.
-    limitParam:
-      in: query
-      name: limit
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 50
-        default: 20
-      description: The numbers of items to return.
+      description: The number of items to skip.
+      example: 0
   responses:
     BadRequest:
       description: Bad request.
@@ -1961,10 +2171,10 @@ components:
     RecoveryPassword:
       type: object
       required:
-        - username
+        - recovery_key
         - new_password
       properties:
-        username:
+        recovery_key:
           type: string
         new_password:
           type: string
@@ -1994,19 +2204,19 @@ components:
     FriendRequest:
       type: object
       required:
-        - from
-        - to
+        - from_user
+        - to_user
         - message
       properties:
         id:
           type: integer
           format: int64
           readOnly: true
-        from:
+        from_user:
           type: integer
           format: int64
           readOnly: true
-        to:
+        to_user:
           type: integer
           format: int64
           readOnly: true
@@ -2014,6 +2224,8 @@ components:
           type: string
         status:
           type: string
+          readOnly: true
+          example: approved
         date_created:
           type: string
           format: date-time
@@ -2022,10 +2234,22 @@ components:
           type: string
           format: date-time
           readOnly: true
-    FriendRequests:
-      type: array
-      items:
-        $ref: "#/components/schemas/FriendRequest"
+    PatchFriendRequest:
+      type: object
+      required:
+        - op
+        - path
+        - value
+      properties:
+        op:
+          type: string
+          example: replace
+        path:
+          type: string
+          example: status
+        value:
+          type: string
+          example: approved
     Video:
       type: object
       required:
@@ -2053,6 +2277,9 @@ components:
           type: object
           format: json
           readOnly: true
+        user:
+          type: string
+          example: testuser
         date_created:
           type: string
           format: date-time
@@ -2065,14 +2292,25 @@ components:
       type: object
       required:
         - message
+        - video
       properties:
         id:
           type: string
           example: 87593dsf73f908
           readOnly: true
+        video:
+          type: string
+          example: 1159334tgsf73f9
+        parent:
+          type: string
+          example: 84759334wef73f1
         message:
           type: string
           example: Que buen video!!
+        user:
+          type: string
+          example: testuser
+          readOnly: true
         date_created:
           type: string
           format: date-time
