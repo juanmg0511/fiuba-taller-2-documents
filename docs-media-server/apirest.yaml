@@ -6,22 +6,6 @@ servers:
   - url: https://fiuba-taller-2-media-server.herokuapp.com/
     description: Media Server
 paths:
-  /list:
-    get:
-      deprecated: true
-      summary: List Videos
-      tags:
-        - videos
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  videoName:
-                    $ref: "#/components/schemas/OutputVideo"
   /status:
     get:
       summary: Get server health
