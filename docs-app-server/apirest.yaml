@@ -1333,19 +1333,13 @@ paths:
                 code: -1
                 message: "User 'username' not found."
                 data: null
-  /friendrequests:
+  /friendships:
     get:
-      summary: List friend requests
-      operationId: getFriendRequests
+      summary: List friendships
+      operationId: getFriendships
       tags:
-        - friendrequests
+        - friendships
       parameters:
-        - name: id
-          in: query
-          required: false
-          description: The id of the friend request
-          schema:
-            type: string
         - name: from_user
           in: query
           required: false
@@ -1358,11 +1352,17 @@ paths:
           description: The id of the user requested
           schema:
             type: string
+        - name: status
+          in: query
+          required: false
+          description: The status of the friendship "pending" / "approved"
+          schema:
+            type: string
         - $ref: '#/components/parameters/offsetParam'
         - $ref: '#/components/parameters/limitParam'
       responses:
         '200':
-          description: A paged array of friend requests
+          description: A paged array of friendships
           content:
             application/json:
               schema:
@@ -1375,7 +1375,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/FriendRequest"
+                      $ref: "#/components/schemas/Friendship"
         default:
           description: unexpected error
           content:
@@ -1383,19 +1383,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Create friend request
-      operationId: createFriendRequest
+      summary: Create friendship request
+      operationId: createFriendship
       tags:
-        - friendrequests
+        - friendships
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FriendRequest'
+              $ref: '#/components/schemas/Friendship'
       responses:
         '201':
-          description: Friend request data
+          description: Friendship request data
           headers:
             X-Request-ID:
               schema:
@@ -1404,7 +1404,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FriendRequest"
+                $ref: "#/components/schemas/Friendship"
         '400':
           $ref: "#/components/responses/BadRequest"
         '401':
@@ -1415,59 +1415,32 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
-  /friendrequests/{friendRequestId}:
-    get:
-      summary: Get friend request
-      operationId: getFriendRequest
+  /friendships/{friendshipId}:
+    put:
+      summary: Update status friendship
+      operationId: updateFriendship
       tags:
-        - friendrequests
+        - friendships
       parameters:
-        - name: friendRequestId
+        - name: friendshipId
           in: path
           required: true
-          description: The id of the friend request to retrieve
+          description: The id of the friendship to edit
           schema:
             type: string
-      responses:
-        '200':
-          description: Friend request data
-          headers:
-            X-Request-ID:
-              schema:
-                type: string
-              description: Request unique identifier.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FriendRequest"
-        '400':
-          $ref: "#/components/responses/BadRequest"
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
-        '404':
-          $ref: "#/components/responses/NotFound"
-        '5XX':
-          $ref: "#/components/responses/ServerError"
-    patch:
-      summary: Update status friend request
-      operationId: patchFriendRequest
-      tags:
-        - friendrequests
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchFriendRequest'
-      parameters:
-        - name: friendRequestId
-          in: path
-          required: true
-          description: The id of the friend request to update
-          schema:
-            type: string
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  description: new status
+                  example: approved
       responses:
         '200':
           description: Expected response to a valid request
@@ -1479,7 +1452,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FriendRequest"
+                $ref: "#/components/schemas/OK"
         '400':
           $ref: "#/components/responses/BadRequest"
         '401':
@@ -1491,15 +1464,15 @@ paths:
         '5XX':
           $ref: "#/components/responses/ServerError"
     delete:
-      summary: Delete friend request
-      operationId: deleteFriendRequest
+      summary: Delete friendship
+      operationId: deleteFriendship
       tags:
-        - friendrequests
+        - friendships
       parameters:
-        - name: friendRequestId
+        - name: friendshipId
           in: path
           required: true
-          description: The id of the friend request to delete
+          description: The id of the friendship to delete
           schema:
             type: string
       responses:
@@ -2201,7 +2174,7 @@ components:
           type: string
           format: date-time
           readOnly: true
-    FriendRequest:
+    Friendship:
       type: object
       required:
         - from_user
@@ -2219,7 +2192,8 @@ components:
         to_user:
           type: integer
           format: int64
-          readOnly: true
+          readOnly: false
+          example: testuser
         message:
           type: string
         status:
@@ -2234,22 +2208,6 @@ components:
           type: string
           format: date-time
           readOnly: true
-    PatchFriendRequest:
-      type: object
-      required:
-        - op
-        - path
-        - value
-      properties:
-        op:
-          type: string
-          example: replace
-        path:
-          type: string
-          example: status
-        value:
-          type: string
-          example: approved
     Video:
       type: object
       required:
