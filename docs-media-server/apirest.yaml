@@ -31,6 +31,27 @@ paths:
               schema:
                 type: string
                 example: "Ping received!"
+  /videos/{id}:
+    delete:
+      summary: Delete video
+      tags:
+        - videos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video id to be deleted
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video deleted
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Successfully deleted 1 videos
+
   /videos:
     get:
       summary: Get videos
@@ -119,7 +140,7 @@ components:
         date_created:
           type: string
         size:
-          type: string
+          type: number
         type:
           type: string
 
@@ -133,7 +154,7 @@ components:
         dateCreated:
           type: string
         size:
-          type: string
+          type: number
         type:
           type: string
         url:
