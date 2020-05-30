@@ -47,10 +47,18 @@ paths:
         '200':
           description: Video deleted
           content:
-            text/plain:
+            application/json:
               schema:
                 type: string
-                example: Successfully deleted 1 videos
+                example: Successfully deleted video 2c1v3d4d6
+        '404':
+          description: Video not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Video not found
 
   /videos:
     get:
@@ -99,7 +107,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OutputVideo'
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Duplicated
 
         '400':
           description: Bad request
@@ -107,8 +117,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OutputVideo'
-
-
+              example:
+                error: Payload is malformed
 
 components:
   schemas:
@@ -119,6 +129,7 @@ components:
           type: number
         message:
           type: string
+          example: media-server
         data:
           $ref: '#/components/schemas/Health'
 
@@ -127,40 +138,53 @@ components:
       properties:
         server_status:
           type: string
+          example: online
         database_status:
           type: string
+          example: online
 
     InputVideo:
       type: object
       properties:
         video_id:
           type: string
+          example: 32a1sd5fd
         name:
           type: string
+          example: 0123012-dog
         date_created:
           type: string
         size:
           type: number
+          example: 3215421
         type:
           type: string
+          example: video/mp4
 
     OutputVideo:
       type: object
       properties:
         video_id:
           type: string
+          example: 32a1sd5fd
         name:
           type: string
-        dateCreated:
+          example: 0123012-dog
+        date_created:
           type: string
         size:
           type: number
+          example: 3215421
         type:
           type: string
+          example: video/mp4
         url:
           type: string
+          example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/videos/..
         thumb:
           type: string
+          example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/videos/..
+
 
     Error:
       type: object
