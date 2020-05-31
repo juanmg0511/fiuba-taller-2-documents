@@ -54,7 +54,7 @@ paths:
               example:
                 code: 0
                 message: fiuba-taller-2-auth-server-v1.00
-                'data:':
+                data:
                   server_status: online
                   database_status: online
   /stats:
@@ -63,17 +63,89 @@ paths:
       operationId: stats
       tags:
         - stats
+      parameters:
+        - name: datestart
+          in: path
+          required: true
+          description: The starting date of the required period
+          schema:
+            type: string
+          example: "2020-05-30"
+        - name: enddate
+          in: path
+          schema:
+            type: string
+          example: "2020-05-31"
+          required: true
+          description: The ending date of the required period
+        - name: sortascending
+          in: path
+          schema:
+            type: boolean
+          required: true
+          description: "***OPTIONAL*** The sort order of the date array"
       responses:
-        '501':
-          description: Not implemented
+        '200':
+          description: Usage stats, with an array of dates
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/Stats'
               example:
-                code: -1
-                message: "TBD, coming soon!"
-                data: {}
+                'request_date:': '2020-05-31T14:58:54.787980'
+                requested_days: 2
+                registered_users: 8
+                registered_users_login_service: 0
+                registered_users_active: 5
+                registered_users_closed: 3
+                registered_adminusers: 1
+                registered_adminusers_active: 1
+                registered_adminusers_closed: 0
+                active_sessions: 0
+                active_recovery: 0
+                daily_stats:
+                  - date: '2020-05-30'
+                    requests_number: '1'
+                    requests_users: '0'
+                    requests_adminusers: '0'
+                    requests_sessions: '1'
+                    requests_recovery: '0'
+                    requests_per_minute: '0.0007'
+                    endpoint_most_requests: /sessions
+                    response_time_max: '0.9576'
+                    response_time_min: '0.9576'
+                    response_time_avg: '0.9576'
+                    users_new: '0'
+                    users_deleted: '0'
+                    sessions_opened: '0'
+                    sessions_closed: '0'
+                    recovery_requests: '0'
+                    requests_error_400: '0'
+                    requests_error_401: '0'
+                    requests_error_404: '0'
+                    requests_error_405: '0'
+                    requests_error_500: '0'
+                  - date: '2020-05-29'
+                    requests_number: '18'
+                    requests_users: '2'
+                    requests_adminusers: '0'
+                    requests_sessions: '14'
+                    requests_recovery: '0'
+                    requests_per_minute: '0.0125'
+                    endpoint_most_requests: /sessions
+                    response_time_max: '0.9812'
+                    response_time_min: '0.0036'
+                    response_time_avg: '0.4924'
+                    users_new: '0'
+                    users_deleted: '0'
+                    sessions_opened: '0'
+                    sessions_closed: '0'
+                    recovery_requests: '0'
+                    requests_error_400: '0'
+                    requests_error_401: '0'
+                    requests_error_404: '1'
+                    requests_error_405: '0'
+                    requests_error_500: '0'
   /users:
     get:
       summary: Get all users
@@ -93,6 +165,12 @@ paths:
             type: string
           required: false
           description: a unique identifier for this request
+        - in: path
+          name: show_closed
+          schema:
+            type: boolean
+          required: true
+          description: "***OPTIONAL*** shows closed accounts in result"
       responses:
         '200':
           description: An array of users
@@ -110,10 +188,22 @@ paths:
                   phone: +54 11 5555 5555
                 avatar:
                   url: 'http://www.google.com/'
+                login_service: false
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: null
+        '400':
+          description: "Bad request (-1)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: Bad request. Missing required arguments.
+                data: null                
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -123,7 +213,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
     post:
-      summary: Create a user
+      summary: "Create a user: login_service=true must not include a password, login_service=false must include a password." 
       operationId: createUser
       tags:
         - users
@@ -148,13 +238,13 @@ paths:
               $ref: '#/components/schemas/User'  
       responses:
         '201':
-          description: "New user created"
+          description: New user created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
         '400':
-          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)/ user already exists (-4)"
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3) / account is closed (-4) / user already exists (-5)"
           content:
             application/json:            
               schema:
@@ -164,7 +254,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -215,10 +305,12 @@ paths:
                   phone: +54 11 5555 5555
                 avatar:
                   url: 'http://www.google.com/'
+                login_service: false
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -228,7 +320,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -284,10 +376,12 @@ paths:
                   phone: +54 11 5555 5555
                 avatar:
                   url: 'http://www.google.com/'
+                login_service: false
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: '2020-05-09T22:18:05.458187'
         '400':
-          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
+          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3), account closed (-4)"
           content:
             application/json:            
               schema:
@@ -297,7 +391,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -307,7 +401,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -317,7 +411,7 @@ paths:
                 message: User 'JuanManuel' not found.
                 data: null
     patch:
-      summary: Update user password
+      summary: Update user password or avatar
       operationId: patchUser
       tags:
         - users
@@ -327,6 +421,10 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PatchUser' 
+            example:
+              op: replace
+              path: /password or /avatar/url
+              value: the new password or avatar URL
       parameters:
         - name: userName
           in: path
@@ -348,7 +446,7 @@ paths:
           description: a unique identifier for this request
       responses:
         '200':
-          description: User password updated
+          description: User password or avatar updated
           content:
             application/json:
               schema:
@@ -358,7 +456,7 @@ paths:
                 message: User 'JuanManuel' password updated.
                 data: null              
         '400':
-          description: "Bad request: missing required arguments (-1) / bad argument format, contact (-2), bad argument format, avatar (-3)"
+          description: "Bad request: missing required arguments (-1) / bad argument format, value (-2), closed account (-3), uses login service and wants to update password (-4)"
           content:
             application/json:            
               schema:
@@ -368,7 +466,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -378,7 +476,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -388,7 +486,7 @@ paths:
                 message: User 'JuanManuel' not found.
                 data: null
     delete:
-      summary: Delete user
+      summary: Mark user as closed account
       operationId: deleteUser
       tags:
         - users
@@ -413,17 +511,27 @@ paths:
           description: a unique identifier for this request
       responses:
         '200':
-          description: User deleted
+          description: "User marked as closed account (0)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/OK"
               example:
                 code: 0
-                message: User 'JuanManuel' deleted.
+                message: User 'JuanManuel' marked as closed account.
                 data: null
+        '400':
+          description: "Already closed account (-1)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'Juan Manuel' account is already closed.
+                data: null        
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -433,7 +541,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -460,7 +568,12 @@ paths:
           schema:
             type: string
           required: false
-          description: a unique identifier for this request
+        - in: path
+          name: show_closed
+          schema:
+            type: boolean
+          required: true
+          description: "***OPTIONAL*** shows closed accounts in result"
       responses:
         '200':
           description: An array of admin users
@@ -474,10 +587,21 @@ paths:
                 first_name: Juan Manuel
                 last_name: Gonzalez
                 email: juan@example.com
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: null
+        '400':
+          description: "Bad request, wrong arguments (-1)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: "Bad request. Missing required arguments."
+                data: null        
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -528,7 +652,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -575,10 +699,11 @@ paths:
                 first_name: Juan Manuel
                 last_name: Gonzalez
                 email: juan@example.com
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -588,7 +713,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -640,10 +765,11 @@ paths:
                 first_name: Juan Manuel
                 last_name: Gonzalez
                 email: juan@example.com
+                account_closed: false
                 date_created: '2020-05-09T22:16:05.458187'
                 date_updated: '2020-05-09T22:18:05.458187'
         '400':
-          description: "Bad request: missing required arguments (-1)"
+          description: "Bad request: missing required arguments (-1) / closed account (-2)"
           content:
             application/json:            
               schema:
@@ -653,7 +779,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -663,7 +789,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -682,7 +808,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchUser' 
+              $ref: '#/components/schemas/PatchUser'
+            example:
+              op: replace
+              path: /password
+              value: the new password
       parameters:
         - name: userName
           in: path
@@ -704,7 +834,7 @@ paths:
           description: a unique identifier for this request
       responses:
         '200':
-          description: Admin user password updated
+          description: "Admin user password updated (0)"
           content:
             application/json:
               schema:
@@ -714,7 +844,7 @@ paths:
                 message: Admin user 'JuanManuel' password updated.
                 data: null              
         '400':
-          description: "Bad request: missing required arguments (-1)"
+          description: "Bad request: missing required arguments (-1) / account closed (-2)"
           content:
             application/json:            
               schema:
@@ -724,7 +854,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -734,7 +864,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -744,7 +874,7 @@ paths:
                 message: Admin user 'JuanManuel' not found.
                 data: null
     delete:
-      summary: Delete admin user
+      summary: Mark admin user as closed account
       operationId: deleteAdminUser
       tags:
         - adminusers
@@ -769,17 +899,27 @@ paths:
           description: a unique identifier for this request
       responses:
         '200':
-          description: Admin user deleted
+          description: "Admin user marked as closed account (0)"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/OK"
               example:
                 code: 0
-                message: Admin user 'JuanManuel' deleted.
+                message: Admin user 'JuanManuel' marked as closed account.
+                data: null
+        '400':
+          description: "Already closed account (-1)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: User 'Juan Manuel' account is already closed.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -789,7 +929,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -831,7 +971,7 @@ paths:
                 expires: '2020-05-11T05:59:45.740404'
                 date_created: '2020-05-11T03:59:45.740445'
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -841,7 +981,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
     post:
-      summary: Create a session
+      summary: "Create a session: for login service users a login_service_token must be included, for not login services users a password must be included."
       operationId: createSessions
       tags:
         - sessions
@@ -872,7 +1012,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Session"
         '400':
-          description: "Bad request: missing required arguments"
+          description: "Bad request: missing required arguments (-1) / Account is closed (-2) / Wrong combination of username and token or password (-3)"
           content:
             application/json:            
               schema:
@@ -882,7 +1022,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: "Access error: invalid API key (-1) / wrong username or password (-2)"
+          description: "Access error: invalid API key (-1) / wrong username or password or identity vaidation with external login service provider faild (-2)"
           content:
             application/json:    
               schema:
@@ -892,14 +1032,14 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
                 $ref: "#/components/schemas/Error"
               example:
                 code: -1
-                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."
+                message: "User 'JuanManuel' not found."
                 data: null
   /sessions/{token}:
     get:
@@ -940,7 +1080,7 @@ paths:
                 expires: '2020-05-11T05:59:45.740404'
                 date_created: '2020-05-11T03:59:45.740445'
         '401':
-          description: Access error
+          description: "Access error (-1) / Expired session (-2) / No session found with supplied token (-3)"
           content:
             application/json:    
               schema:
@@ -948,16 +1088,6 @@ paths:
               example:
                 code: -1
                 message: You are not authorized to access this resource.
-                data: null
-        '404':
-          description: Not found error
-          content:
-            application/json:    
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                code: -1
-                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."
                 data: null
     delete:
       summary: Delete session
@@ -985,7 +1115,7 @@ paths:
           description: a unique identifier for this request
       responses:
         '200':
-          description: Session deleted
+          description: "Session deleted (0) / Session not found (0)"
           content:
             application/json:
               schema:
@@ -995,7 +1125,7 @@ paths:
                 message: Session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' deleted.
                 data: null
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -1003,16 +1133,6 @@ paths:
               example:
                 code: -1
                 message: You are not authorized to access this resource.
-                data: null
-        '404':
-          description: Not found error
-          content:
-            application/json:    
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                code: -1
-                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
                 data: null
   /recovery:
     get:
@@ -1047,7 +1167,7 @@ paths:
                 expires: '2020-05-11T05:59:45.740404'
                 date_created: '2020-05-11T03:59:45.740445'
         '401':
-          description: Access error
+          description: "Access error (-1)"
           content:
             application/json:    
               schema:
@@ -1088,7 +1208,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Recovery"
         '400':
-          description: "Bad request: missing required arguments"
+          description: "Bad request: missing required arguments (-1) / account closed (-2) / user uses a login service (-3)"
           content:
             application/json:            
               schema:
@@ -1108,7 +1228,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: Not found error
+          description: "Not found error (-1)"
           content:
             application/json:    
               schema:
@@ -1155,8 +1275,18 @@ paths:
                 recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
                 expires: '2020-05-11T05:59:45.740404'
                 date_created: '2020-05-11T03:59:45.740445'
+        '400':
+          description: "Account is closed (-1) / User uses login service (-2)"
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                code: -1
+                message: You are not authorized to access this resource.
+                data: null
         '401':
-          description: Access error (-1) / Recovery key expired (-2)
+          description: "Access error (-1) / Recovery key expired (-2) / Recovery request not found (-3)"
           content:
             application/json:    
               schema:
@@ -1166,7 +1296,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: User not found error (-1) / Recovery request not found (-2)
+          description: "User not found error (-1) / "
           content:
             application/json:    
               schema:
@@ -1204,10 +1334,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthUser'  
+              $ref: '#/components/schemas/RecoveryPassword'
+            example:
+              recovery_key: 635147d2-a12b-11ea-b54b-0242ac1e0003
+              new_password: new password set by user
       responses:
         '200':
-          description: New session created
+          description: User password reseted
           content:
             application/json:
               schema:
@@ -1217,7 +1350,7 @@ paths:
                 message: "Password for user 'JuanManuel' was reset."
                 data: null
         '400':
-          description: "Bad request: missing required arguments"
+          description: "Bad request: missing required arguments (-1) / account is closed (-2) / user uses login service (-3)"
           content:
             application/json:            
               schema:
@@ -1227,7 +1360,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: "Access error: invalid API key (-1) / expired recovery key (-2) / wrong recovery key (-3)"
+          description: "Access error: invalid API key (-1) / expired recovery key (-2) / Recovery request not found (-3) / Wrong recovery key (-4)"
           content:
             application/json:    
               schema:
@@ -1237,7 +1370,7 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
         '404':
-          description: User not found error (-1) / Recovery request not found (-2)
+          description: "User not found error (-1)"
           content:
             application/json:    
               schema:
@@ -1246,19 +1379,119 @@ paths:
                 code: -1
                 message: "User 'JuanManuel' not found."
                 data: null
+  /requestlog:
+    get:
+      summary: Get request log entries
+      operationId: getRequestLog
+      tags:
+        - requestlog
+      parameters:
+        - in: header
+          name: X-Client-ID
+          schema:
+            type: string
+          required: true
+          description: API key for the client server  
+        - in: header
+          name: X-Request-ID
+          schema:
+            type: string
+          required: false
+          description: a unique identifier for this request
+        - in: path
+          name: datestart
+          required: true
+          description: The starting date of the required period
+          schema:
+            type: string
+          example: "2020-05-30"
+        - in: path
+          name: enddate
+          schema:
+            type: string
+          example: "2020-05-31"
+          required: true
+          description: The ending date of the required period
+        - in: path
+          name: filter
+          schema:
+            $ref: "#/components/schemas/ReqlogFilter"
+          example:
+            comparator: "'eq' for exact match or 'in' for includes"
+            field: field to filter by
+            value: value to filter
+          required: true
+          description: "***OPTIONAL*** Filter by a certain field"
+        - in: path
+          name: sortascending
+          schema:
+            type: boolean
+          required: true
+          description: "***OPTIONAL*** Sort order of the results array, by date"
+      responses:
+        '200':
+          description: An array of request log entries
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ReqLogResponse"
+              example:
+                request_date: '2020-05-31T17:13:39.227725'
+                requested_days: '1'
+                records_retrieved: '1'
+                request_log:
+                  - _id: 5ed29c83dad788fb92620ceb
+                    log_type: request
+                    request_date: '2020-05-30T17:48:51.884252'
+                    request_id: 15f00a7b-eea8-454a-aa3a-4529c19de7c6
+                    remote_ip: 54.146.137.47
+                    host: fiuba-taller-2-auth-server-st.herokuapp.com
+                    api_version: v1
+                    method: POST
+                    path: /api/v1/sessions
+                    status: 201 CREATED
+                    duration: '0.957623'
+                    headers:
+                      Host: fiuba-taller-2-auth-server-st.herokuapp.com
+                      Connection: close
+                      User-Agent: python-requests/2.23.0
+                      Accept-Encoding: 'gzip, deflate'
+                      Accept: '*/*'
+                      X-Client-Id: 407f7dbf-57d5-4aea-bfbd-d317ae872428
+                      X-Request-Id: 15f00a7b-eea8-454a-aa3a-4529c19de7c6
+                      Content-Type: application/json
+                      X-Forwarded-For: 54.146.137.47
+                      X-Forwarded-Proto: https
+                      X-Forwarded-Port: '443'
+                      Via: 1.1 vegur
+                      Connect-Time: '1'
+                      X-Request-Start: '1590860930911'
+                      Total-Route-Time: '3'
+                      Content-Length: '61'
+                    args: {}
+                    data:
+                      username: chotuvegod
+                      password: '*'
+                    response:
+                      username: chotuvegod
+                      session_token: d2d21352-a29d-11ea-bbb9-7ad6a5a7e34f
+                      expires: '2020-05-30T19:48:51.877048'
+                      date_created: '2020-05-30T17:48:51.877096'
+                      id: 5ed29c83dad788fb92620cea
 components:
   schemas:
     AuthUser:
       type: object
       required:
         - username
-        - password
       properties:
         username:
           type: string
         password:
           type: string
           format: password
+        login_service_token:
+          type: string
     PatchUser:
       type: object
       required:
@@ -1297,6 +1530,9 @@ components:
         email:
           type: string
           format: email
+        account_closed:
+          type: boolean
+          readOnly: true
         date_created:
           type: string
           format: date-time
@@ -1323,6 +1559,9 @@ components:
         email:
           type: string
           format: email
+        account_closed:
+          type: boolean
+          readOnly: true
         date_created:
           type: string
           format: date-time
@@ -1335,7 +1574,6 @@ components:
       type: object
       required:
         - username
-        - password
         - first_name
         - last_name
         - contact
@@ -1357,6 +1595,11 @@ components:
           $ref: '#/components/schemas/ContactInfo'
         avatar:
           $ref: '#/components/schemas/Picture'
+        login_service:
+          type: boolean
+        account_closed:
+          type: boolean
+          readOnly: true
         date_created:
           type: string
           format: date-time
@@ -1384,6 +1627,12 @@ components:
           $ref: '#/components/schemas/ContactInfo'
         avatar:
           $ref: '#/components/schemas/Picture'
+        login_service:
+          type: boolean
+          readOnly: true
+        account_closed:
+          type: boolean
+          readOnly: true
         date_created:
           type: string
           format: date-time
@@ -1423,6 +1672,9 @@ components:
           type: integer
           format: int32
         message:
+          type: string
+          readOnly: true
+        data:
           type: object
           required:
             - server_status
@@ -1434,8 +1686,110 @@ components:
             database_status:
               type: string
               readOnly: true
-        data:
-          type: object
+    Stats:
+      type: object
+      properties:
+        request_date:
+          type: string
+          readOnly: true
+        requested_days:
+          type: string
+          readOnly: true
+        registered_users:
+          type: string
+          readOnly: true
+        registered_users_login_service:
+          type: string
+          readOnly: true
+        registered_users_active:
+          type: string
+          readOnly: true
+        registered_users_closed:
+          type: string
+          readOnly: true
+        registered_adminusers:
+          type: string
+          readOnly: true
+        registered_adminusers_active:
+          type: string
+          readOnly: true
+        registered_adminusers_closed:
+          type: string
+          readOnly: true
+        active_sessions:
+          type: string
+          readOnly: true
+        active_recovery:
+          type: string
+          readOnly: true
+        daily_stats:
+          type: array
+          items:
+            $ref: "#/components/schemas/DailyStats"
+          readOnly: true
+    DailyStats:
+      type: object
+      properties:
+        date:
+          type: string
+          readOnly: true
+        requests_number:
+          type: string
+          readOnly: true
+        requests_adminusers:
+          type: string
+          readOnly: true
+        requests_sessions:
+          type: string
+          readOnly: true
+        requests_recovery:
+          type: string
+          readOnly: true
+        requests_per_minute:
+          type: string
+          readOnly: true
+        endpoint_most_requests:
+          type: string
+          readOnly: true
+        response_time_max:
+          type: string
+          readOnly: true
+        response_time_min:
+          type: string
+          readOnly: true
+        response_time_avg:
+          type: string
+          readOnly: true
+        users_new:
+          type: string
+          readOnly: true
+        users_deleted:
+          type: string
+          readOnly: true    
+        sessions_opened:
+          type: string
+          readOnly: true    
+        sessions_closed:
+          type: string
+          readOnly: true    
+        recovery_requests:
+          type: string
+          readOnly: true    
+        requests_error_400:
+          type: string
+          readOnly: true    
+        requests_error_401:
+          type: string
+          readOnly: true    
+        requests_error_404:
+          type: string
+          readOnly: true    
+        requests_error_405:
+          type: string
+          readOnly: true    
+        requests_error_500:
+          type: string
+          readOnly: true    
     Recoveries:
       type: array
       items:
@@ -1467,10 +1821,10 @@ components:
     RecoveryPassword:
       type: object
       required:
-        - username
+        - recovery_key
         - new_password
       properties:
-        username:
+        recovery_key:
           type: string
         new_password:
           type: string
@@ -1496,6 +1850,77 @@ components:
         date_created:
           type: string
           format: date-time
+          readOnly: true
+    ReqlogFilter:
+      type: object
+      properties:
+        comparator:
+          type: string
+        field:
+          type: string
+        value:
+          type: object
+    ReqLogResponse:
+      type: object
+      properties:
+        request_date:
+          type: string
+          readOnly: true
+        requested_days:
+          type: object
+          readOnly: true
+        records_retrieved:
+          type: object
+          readOnly: true
+        request_log:
+          type: array
+          readOnly: true
+          items:
+            $ref: "#/components/schemas/ReqLogEntry"
+    ReqLogEntry:
+      type: object
+      properties:
+        log_type:
+          type: string
+          readOnly: true
+        request_date:
+          type: string
+          readOnly: true
+        request_id:
+          type: string
+          readOnly: true
+        remote_ip:
+          type: string
+          readOnly: true
+        host:
+          type: string
+          readOnly: true
+        api_version:
+          type: string
+          readOnly: true
+        method:
+          type: string
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        duration:
+          type: string
+          readOnly: true
+        headers:
+          type: string
+          readOnly: true
+        args:
+          type: string
+          readOnly: true
+        data:
+          type: string
+          readOnly: true
+        response:
+          type: string
           readOnly: true
     OK:
       type: object
