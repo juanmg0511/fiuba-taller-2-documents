@@ -174,7 +174,7 @@ components:
           type: string
         size:
           type: number
-          example: 3215421
+          example: 321542
         type:
           type: string
           example: video/mp4
