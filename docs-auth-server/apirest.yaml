@@ -83,7 +83,7 @@ paths:
           schema:
             type: boolean
           required: true
-          description: "***OPTIONAL*** The sort order of the date array"
+          description: "***OPTIONAL (false if not set)*** The sort order of the date array"
       responses:
         '200':
           description: Usage stats, with an array of dates
@@ -146,7 +146,7 @@ paths:
                     requests_error_404: '1'
                     requests_error_405: '0'
                     requests_error_500: '0'
-  /users:
+  /api/v1/users:
     get:
       summary: Get all users
       operationId: getUsers
@@ -170,7 +170,7 @@ paths:
           schema:
             type: boolean
           required: true
-          description: "***OPTIONAL*** shows closed accounts in result"
+          description: "***OPTIONAL (false if not set)*** shows closed accounts in result"
       responses:
         '200':
           description: An array of users
@@ -213,7 +213,8 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
     post:
-      summary: "Create a user: login_service=true must not include a password, login_service=false must include a password." 
+      summary: "Create a user" 
+      description: "***IMPORTANT***: if login_service==true, a password must not be included in the request body, if login_service==false then the request body must include a password."
       operationId: createUser
       tags:
         - users
@@ -263,7 +264,7 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
-  /users/{userName}:
+  /api/v1/users/{userName}:
     get:
       summary: Get user
       operationId: getUser
@@ -550,7 +551,7 @@ paths:
                 code: -1
                 message: User 'JuanManuel' not found.
                 data: null
-  /adminusers:
+  /api/v1/adminusers:
     get:
       summary: Get all admin users
       operationId: getAdminUsers
@@ -573,7 +574,7 @@ paths:
           schema:
             type: boolean
           required: true
-          description: "***OPTIONAL*** shows closed accounts in result"
+          description: "***OPTIONAL (false if not set)*** shows closed accounts in result"
       responses:
         '200':
           description: An array of admin users
@@ -661,7 +662,7 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
-  /adminusers/{userName}:
+  /api/v1/adminusers/{userName}:
     get:
       summary: Get admin user
       operationId: getAdminUser
@@ -938,7 +939,7 @@ paths:
                 code: -1
                 message: Admin user 'JuanManuel' not found.
                 data: null
-  /sessions:
+  /api/v1/sessions:
     get:
       summary: Get all sessions
       operationId: getAllSessions
@@ -981,7 +982,8 @@ paths:
                 message: You are not authorized to access this resource.
                 data: null
     post:
-      summary: "Create a session: for login service users a login_service_token must be included, for not login services users a password must be included."
+      summary: "Create a session"
+      description: "***IMPORTANT***: if the user uses a login service, a login_service_token must be included in the request body, if the user does not use a login service, then the request body must include a password."
       operationId: createSessions
       tags:
         - sessions
@@ -1041,7 +1043,7 @@ paths:
                 code: -1
                 message: "User 'JuanManuel' not found."
                 data: null
-  /sessions/{token}:
+  /api/v1/sessions/{token}:
     get:
       summary: Get session
       operationId: getSession
@@ -1134,7 +1136,7 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
-  /recovery:
+  /api/v1/recovery:
     get:
       summary: Get all recovery requests
       operationId: getAllRecovery
@@ -1237,7 +1239,7 @@ paths:
                 code: -1
                 message: User 'JuanManuel' not found.
                 data: null
-  /recovery/{userName}:
+  /api/v1/recovery/{userName}:
     get:
       summary: View recovery request for user
       operationId: viewRecoveryRequest
@@ -1379,7 +1381,7 @@ paths:
                 code: -1
                 message: "User 'JuanManuel' not found."
                 data: null
-  /requestlog:
+  /api/v1/requestlog:
     get:
       summary: Get request log entries
       operationId: getRequestLog
@@ -1427,7 +1429,7 @@ paths:
           schema:
             type: boolean
           required: true
-          description: "***OPTIONAL*** Sort order of the results array, by date"
+          description: "***OPTIONAL (false if not set)*** Sort order of the results array, by date"
       responses:
         '200':
           description: An array of request log entries
