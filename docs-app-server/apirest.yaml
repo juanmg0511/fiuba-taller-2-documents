@@ -494,7 +494,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/AdminUsers"
               example:
@@ -513,7 +513,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -531,7 +531,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdminUser'  
+              $ref: '#/components/schemas/AdminUser'
       responses:
         '201':
           description: "New admin user created"
@@ -552,7 +552,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -567,7 +567,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -596,13 +596,13 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/AdminUsers"
               example:
                 id: 5eb72ba5d2824353b87e5e94
                 username: testuser
-                first_name: Test                
+                first_name: Test
                 last_name: User
                 email: testuser@example.com
                 date_created: '2020-05-09T22:16:05.458187'
@@ -615,7 +615,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -630,7 +630,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -647,7 +647,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AdminUserPut' 
+              $ref: '#/components/schemas/AdminUserPut'
       parameters:
         - name: userName
           in: path
@@ -683,7 +683,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -698,7 +698,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -713,7 +713,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -730,7 +730,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchUser' 
+              $ref: '#/components/schemas/PatchUser'
       parameters:
         - name: userName
           in: path
@@ -753,7 +753,7 @@ paths:
               example:
                 code: 0
                 message: Admin user testuser password updated.
-                data: null              
+                data: null
         '400':
           description: "Bad request: missing required arguments (-1)"
           headers:
@@ -762,7 +762,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -777,7 +777,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -792,7 +792,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -835,7 +835,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -850,7 +850,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -872,11 +872,11 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Sessions"
               example:
-              - id: 5eb8cdb1ec54d8c9b812c074 
+              - id: 5eb8cdb1ec54d8c9b812c074
                 username: chotuvegod
                 session_token: d9f6c4b4-933b-11ea-9566-72ba225d89f0
                 expires: '2020-05-11T05:59:45.740404'
@@ -889,7 +889,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -907,7 +907,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthUser'  
+              $ref: '#/components/schemas/AuthUser'
       responses:
         '201':
           description: New session created
@@ -928,7 +928,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:            
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -943,7 +943,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -958,7 +958,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -987,7 +987,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Session"
               example:
@@ -1004,7 +1004,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1019,7 +1019,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1062,7 +1062,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1077,12 +1077,12 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
                 code: -1
-                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."  
+                message: "No session with token 'd9f6c4b4-933b-11ea-9566-72ba225d89f0' was found."
                 data: null
   /recovery:
     get:
@@ -1099,11 +1099,11 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Recoveries"
               example:
-              - id: 5eb8cdb1ec54d8c9b812c074 
+              - id: 5eb8cdb1ec54d8c9b812c074
                 username: chotuvegod
                 recovery_key: d9f6c4b4-933b-11ea-9566-72ba225d89f0
                 expires: '2020-05-11T05:59:45.740404'
@@ -1116,7 +1116,7 @@ paths:
                 type: string
               description: Request unique identifier.
           content:
-            application/json:    
+            application/json:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
@@ -1338,7 +1338,7 @@ paths:
       summary: List friendships
       operationId: getFriendships
       tags:
-        - friendships
+        - friends
       parameters:
         - name: from_user
           in: query
@@ -1368,10 +1368,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  offset:
-                    type: integer
-                  limit:
-                    type: integer
                   data:
                     type: array
                     items:
@@ -1386,7 +1382,7 @@ paths:
       summary: Create friendship request
       operationId: createFriendship
       tags:
-        - friendships
+        - friends
       requestBody:
         required: true
         content:
@@ -1420,7 +1416,7 @@ paths:
       summary: Update status friendship
       operationId: updateFriendship
       tags:
-        - friendships
+        - friends
       parameters:
         - name: friendshipId
           in: path
@@ -1467,7 +1463,7 @@ paths:
       summary: Delete friendship
       operationId: deleteFriendship
       tags:
-        - friendships
+        - friends
       parameters:
         - name: friendshipId
           in: path
@@ -1497,6 +1493,37 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
+  /users/{userName}/friends:
+    get:
+      summary: List of friends
+      operationId: getFriends
+      tags:
+        - friends
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          description: The username of the user to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of user's friends
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Friend"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /videos:
     get:
       summary: List videos
@@ -1533,10 +1560,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  offset:
-                    type: integer
-                  limit:
-                    type: integer
                   data:
                     type: array
                     items:
@@ -1548,7 +1571,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Post new video
+      summary: Create new video
       operationId: postVideo
       tags:
         - videos
@@ -1559,7 +1582,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Video'
       responses:
-        '200':
+        '201':
           description: Expected response to a valid request
           headers:
             X-Request-ID:
@@ -1724,10 +1747,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  offset:
-                    type: integer
-                  limit:
-                    type: integer
                   data:
                     type: array
                     items:
@@ -1739,7 +1758,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Post new comment
+      summary: Create new comment
       operationId: postComment
       tags:
         - comments
@@ -1750,7 +1769,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Comment'
       responses:
-        '200':
+        '201':
           description: Expected response to a valid request
           headers:
             X-Request-ID:
@@ -2177,7 +2196,6 @@ components:
     Friendship:
       type: object
       required:
-        - from_user
         - to_user
         - message
       properties:
@@ -2200,6 +2218,26 @@ components:
           type: string
           readOnly: true
           example: approved
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+        date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Friend:
+      type: object
+      properties:
+        friendship_id:
+          type: integer
+          format: int64
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        message:
+          type: string
         date_created:
           type: string
           format: date-time
@@ -2238,6 +2276,7 @@ components:
         user:
           type: string
           example: testuser
+          readOnly: true
         date_created:
           type: string
           format: date-time
@@ -2280,15 +2319,40 @@ components:
     Media:
       type: object
       required:
-        - url
+        - name
+        - date_created
+        - size
+        - type
       properties:
-        id:
+        name:
+          type: string
+          example: 1282154_Lathe - 4412.mp4
+        date_created:
+          type: string
+          format: date-time
+          example: 2020-05-30T02:36:53.074000
+        size:
           type: number
+          example: 3215421
+        type:
+          type: string
+          example: video/mp4
+        video_id:
+          type: string
           readOnly: true
-          example: 232
+          example: 5ed5a9d87ec7d6351b6a90e2
+        user_id:
+          type: string
+          readOnly: true
+          example: testuser
         url:
           type: string
-          example: http://myvideo.com/video
+          readOnly: true
+          example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/videos/test/1282154_Lathe%20-%204412.mp4.mp4
+        thumb:
+          type: string
+          readOnly: true
+          example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/videos/test/1282154_Lathe%20-%204412.mp4.mp4
     Location:
       type: object
       required:
