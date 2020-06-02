@@ -1,14 +1,18 @@
 openapi: "3.0.0"
 info:
   title: Chotuve API Reference
+  description: "API guide for the AuthServer<br />1C2020 - FIUBA - 75.52<br /><br />***Team 8***<br /><br />***Github***: https://github.com/juanmg0511/fiuba-taller-2-auth-server<br />***Project:*** https://github.com/juanmg0511/fiuba-taller-2-documents"
   version: 1.0.0
 servers:
   - url: https://choutuve-auth-server.herokuapp.com/
     description: Auth Server
+  - url: https://choutuve-auth-server-st.herokuapp.com/
+    description: Auth Server - Staging
 paths:
   /:
     get:
       summary: Home
+      description: A home page message, displaying basic information and server version.
       operationId: home
       tags:
         - home
@@ -24,6 +28,7 @@ paths:
   /ping:
     get:
       summary: Returns a ping message from server
+      description: "An endpoint to ping the server, retuns a basic JSON response. Provides ***ping***."
       operationId: ping
       tags:
         - ping
@@ -41,6 +46,7 @@ paths:
   /status:
     get:
       summary: Returns satus information from server
+      description: "Returns status information for the front-end and database of the server. Provides ***server status***."
       operationId: status
       tags:
         - status
@@ -60,6 +66,7 @@ paths:
   /stats:
     get:
       summary: Returns usage statistics from server
+      description: "Returns an overview of useful usage stats for the server, by date. Provides ***usage statistics***."
       operationId: stats
       tags:
         - stats
@@ -149,6 +156,7 @@ paths:
   /api/v1/users:
     get:
       summary: Get all users
+      description: Returns an array of all active registerd users. Optionally can be made to display closed accounts as well.
       operationId: getUsers
       tags:
         - users
@@ -214,7 +222,7 @@ paths:
                 data: null
     post:
       summary: "Create a user" 
-      description: "***IMPORTANT***: if login_service==true, a password must not be included in the request body, if login_service==false then the request body must include a password."
+      description: "Creates a user, provides user ***registration*** <br /><br /> ***IMPORTANT***: if login_service==true, a password must not be included in the request body, if login_service==false then the request body must include a password."
       operationId: createUser
       tags:
         - users
@@ -267,6 +275,7 @@ paths:
   /api/v1/users/{userName}:
     get:
       summary: Get user
+      description: "Gets information for a user, provides user ***profile***."      
       operationId: getUser
       tags:
         - users
@@ -332,6 +341,7 @@ paths:
                 data: null
     put:
       summary: Update user
+      description: "Updates information for a user, provides user ***profile update***."            
       operationId: putUser
       tags:
         - users
@@ -413,6 +423,7 @@ paths:
                 data: null
     patch:
       summary: Update user password or avatar
+      description: "Updates specific information for a user, provides update for: <br /> <br />***password***<br />***avatar URL***"  
       operationId: patchUser
       tags:
         - users
@@ -488,6 +499,7 @@ paths:
                 data: null
     delete:
       summary: Mark user as closed account
+      description: "Marks a user account as closed, no further operations will be possible. All sessions and recovery requests will be removed, provides ***close account***."
       operationId: deleteUser
       tags:
         - users
@@ -554,6 +566,7 @@ paths:
   /api/v1/adminusers:
     get:
       summary: Get all admin users
+      description: Returns an array of all active registerd admin users. Optionally can be made to display closed accounts as well.
       operationId: getAdminUsers
       tags:
         - adminusers
@@ -613,6 +626,7 @@ paths:
                 data: null
     post:
       summary: Create an admin user
+      description: "Creates a user, provides ***admin registration***."
       operationId: createAdminUser
       tags:
         - adminusers
@@ -665,6 +679,7 @@ paths:
   /api/v1/adminusers/{userName}:
     get:
       summary: Get admin user
+      description: "Gets information for an admin user, provides admin user ***profile***."
       operationId: getAdminUser
       tags:
         - adminusers
@@ -725,6 +740,7 @@ paths:
                 data: null
     put:
       summary: Update admin user
+      description: "Updates information for an admin user, provides admin user ***profile update***."
       operationId: putAdminUser
       tags:
         - adminusers
@@ -801,6 +817,7 @@ paths:
                 data: null
     patch:
       summary: Update admin user password
+      description: "Updates specific information for an admin user, provides update for: <br /> <br />***password***"
       operationId: patchAdminUser
       tags:
         - adminusers
@@ -876,6 +893,7 @@ paths:
                 data: null
     delete:
       summary: Mark admin user as closed account
+      description: "Marks an admin user account as closed, no further operations will be possible. All sessions will be removed, provides ***close account***."
       operationId: deleteAdminUser
       tags:
         - adminusers
@@ -942,6 +960,7 @@ paths:
   /api/v1/sessions:
     get:
       summary: Get all sessions
+      description: Returns an array of all sessions, both active and expired.
       operationId: getAllSessions
       tags:
         - sessions
@@ -983,7 +1002,7 @@ paths:
                 data: null
     post:
       summary: "Create a session"
-      description: "***IMPORTANT***: if the user uses a login service, a login_service_token must be included in the request body, if the user does not use a login service, then the request body must include a password."
+      description: "Creates a new session in the system. Provides ***login***.<br /><br />***IMPORTANT***: if the user uses a login service, a login_service_token must be included in the request body, if the user does not use a login service, then the request body must include a password."
       operationId: createSessions
       tags:
         - sessions
@@ -1000,6 +1019,12 @@ paths:
             type: string
           required: false
           description: a unique identifier for this request
+        - in: header
+          name: X-Admin
+          schema:
+            type: boolean
+          required: false
+          description: "***(false if not set)*** specifies if the user attempting to login is an admin user or not."
       requestBody:
         required: true
         content:
@@ -1024,7 +1049,7 @@ paths:
                 message: Bad request. Missing required arguments.
                 data: null
         '401':
-          description: "Access error: invalid API key (-1) / wrong username or password or identity vaidation with external login service provider faild (-2)"
+          description: "Access error: invalid API key (-1) / wrong username or password or identity vaidation with external login service provider faild (-2) / Not found error (-3)"
           content:
             application/json:    
               schema:
@@ -1033,19 +1058,10 @@ paths:
                 code: -1
                 message: You are not authorized to access this resource.
                 data: null
-        '404':
-          description: "Not found error (-1)"
-          content:
-            application/json:    
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                code: -1
-                message: "User 'JuanManuel' not found."
-                data: null
   /api/v1/sessions/{token}:
     get:
       summary: Get session
+      description: "Returns information for a specific session, specified by its token, provides ***validate session***.<br /><br />***IMPORTANT:*** session is expiry is updated (by a predifined period) after a suscessful session validation. Session will only expire after a full period of inactivity."
       operationId: getSession
       tags:
         - sessions
@@ -1093,6 +1109,7 @@ paths:
                 data: null
     delete:
       summary: Delete session
+      description: "Deletes the specified session, user will have to login again. Provides ***logout***."
       operationId: deleteSession
       tags:
         - sessions
@@ -1139,6 +1156,7 @@ paths:
   /api/v1/recovery:
     get:
       summary: Get all recovery requests
+      description: Returns an array of all recovery requests, both active and expired.      
       operationId: getAllRecovery
       tags:
         - recovery
@@ -1180,6 +1198,7 @@ paths:
                 data: null
     post:
       summary: Create a recovery request
+      description: "Initiates the password recovery flow. Sends an email to the user with instructions on how to recover access. Provides ***password recovery***.<br /><br/>***IMPORTANT:*** generating a new request will invalidate the previous one."
       operationId: createRecovery
       tags:
         - recovery
@@ -1242,6 +1261,7 @@ paths:
   /api/v1/recovery/{userName}:
     get:
       summary: View recovery request for user
+      description: "Gets the recovery request details for the specified user."
       operationId: viewRecoveryRequest
       tags:
         - recovery
@@ -1309,6 +1329,7 @@ paths:
                 data: null
     post:
       summary: Reset a password
+      description: "Completes the password recovery flow for the specified userd. If a valid recovery key is provided, resets the user's password. Provides ***password recovery***.<br /><br/>***IMPORTANT:*** succesfully reseting a password will invalidate the invoking recovery request."
       operationId: resetPassword
       tags:
         - recovery
@@ -1384,6 +1405,7 @@ paths:
   /api/v1/requestlog:
     get:
       summary: Get request log entries
+      description: "Returns a list of requests/events for the server, by date. Logged requests/events are: <br /><br />***requests***<br />***e-mails sent***<br />***scheduled tasks***"
       operationId: getRequestLog
       tags:
         - requestlog
@@ -1436,7 +1458,11 @@ paths:
           content:
             application/json:    
               schema:
-                $ref: "#/components/schemas/ReqLogResponse"
+                oneOf:
+                  - $ref: "#/components/schemas/ReqLogResponse"
+                  - $ref: "#/components/schemas/ReqLogMail"
+                  - $ref: "#/components/schemas/ReqLogSessionsTask"
+                  - $ref: "#/components/schemas/ReqLogRecoveryTask"
               example:
                 request_date: '2020-05-31T17:13:39.227725'
                 requested_days: '1'
@@ -1862,6 +1888,72 @@ components:
           type: string
         value:
           type: object
+    ReqLogMail:
+      type: object
+      properties:
+        log_type:
+          type: string
+          readOnly: true
+        request_date:
+          type: string
+          readOnly: true
+        request_id:
+          type: string
+          readOnly: true
+        api_version:
+          type: string
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          readOnly: true
+        recovery_key:
+          type: string
+          readOnly: true
+        mail_status:
+          type: string
+          readOnly: true
+        exception_message:
+          type: string
+          readOnly: true
+    ReqLogRecoveryTask:
+      type: object
+      properties:
+        log_type:
+          type: string
+          readOnly: true
+        request_date:
+          type: string
+          readOnly: true
+        task_type:
+          type: string
+          readOnly: true
+        api_version:
+          type: string
+          readOnly: true
+        pruned_requests:
+          type: string
+          readOnly: true
+    ReqLogSessionsTask:
+      type: object
+      properties:
+        log_type:
+          type: string
+          readOnly: true
+        request_date:
+          type: string
+          readOnly: true
+        task_type:
+          type: string
+          readOnly: true
+        api_version:
+          type: string
+          readOnly: true
+        pruned_sessions:
+          type: string
+          readOnly: true
     ReqLogResponse:
       type: object
       properties:
