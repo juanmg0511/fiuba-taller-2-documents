@@ -32,6 +32,32 @@ paths:
                 type: string
                 example: "Ping received!"
   /videos/{id}:
+    get:
+      summary: Get a specfic video
+      tags:
+        - videos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Video id to be deleted
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video obtained
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputVideo'
+        '404':
+          description: Video not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
     delete:
       summary: Delete video
       tags:
@@ -57,8 +83,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: Video not found
 
   /videos:
     get:
@@ -108,17 +132,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: Duplicated
 
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OutputVideo'
-              example:
-                error: Payload is malformed
+                $ref: '#/components/schemas/Error'
+
 
 components:
   schemas:
@@ -189,5 +210,15 @@ components:
     Error:
       type: object
       properties:
-        error:
+        code:
+          type: integer
+          format: int32
+          readOnly: true
+          example : -1
+        message:
           type: string
+          readOnly: true
+        data:
+          type: object
+          readOnly: true
+          example: null
