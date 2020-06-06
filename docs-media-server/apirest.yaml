@@ -170,17 +170,22 @@ components:
         video_id:
           type: string
           example: 32a1sd5fd
+          required: true
         name:
           type: string
           example: 0123012-dog
+          required: true
         date_created:
           type: string
+          required: true
         size:
           type: number
           example: 3215421
+          required: true
         type:
           type: string
           example: video/mp4
+          required: true
 
     OutputVideo:
       type: object
