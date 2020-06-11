@@ -8,7 +8,7 @@ servers:
 paths:
   /status:
     get:
-      summary: Get server health
+      summary: Gets server health
       tags:
         - health
       responses:
@@ -33,7 +33,7 @@ paths:
                 example: "Ping received!"
   /videos/{id}:
     get:
-      summary: Get a specfic video
+      summary: Gets a specfic video
       tags:
         - videos
       parameters:
@@ -59,7 +59,7 @@ paths:
 
 
     delete:
-      summary: Delete video
+      summary: Deletes video
       tags:
         - videos
       parameters:
@@ -86,7 +86,7 @@ paths:
 
   /videos:
     get:
-      summary: Get videos
+      summary: Gets videos
       description: This endpoint also offers a q filter to obtain videos with the id passed as parameter
       parameters:
         - in: query
@@ -110,7 +110,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/OutputVideo'
     post:
-      summary: Add a new video
+      summary: Adds a new video
       tags:
         - videos
       requestBody:
@@ -140,7 +140,120 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /pictures:
+    post:
+      summary: Adds a new avatar
+      tags:
+        - avatars
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputAvatar'
+      responses:
+        '201':
+          description: Avatar recently added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputAvatar'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pictures/{id}:
+    get:
+      summary: Gets a specfic avatar
+      tags:
+        - avatars
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description:  Avatar owner's id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Avatar obtained
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputAvatar'
+        '404':
+          description: Avatar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    delete:
+      summary: Deletes avatar
+      tags:
+        - avatars
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Avatar owner's id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Avatar deleted
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Successfully deleted avatar of 2c1v3d4d6
+        '404':
+          description: Avatar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Updates avatar
+      tags:
+        - avatars
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputAvatar'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Avatar owner's id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Avatar updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutputAvatar'
+        '404':
+          description: Avatar not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Status:
@@ -166,6 +279,12 @@ components:
 
     InputVideo:
       type: object
+      required:
+        - video_id
+        - name
+        - date_created
+        - size
+        - type
       properties:
         video_id:
           type: string
@@ -211,6 +330,34 @@ components:
           type: string
           example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/videos/..
 
+
+    InputAvatar:
+      type: object
+      required:
+        - name
+        - user_id
+      properties:
+        name:
+          type: string
+          example: my-avatar.jpg
+          required: true
+        user_id:
+          type: string
+          example: 32a1sd5fd
+          required: true
+
+    OutputAvatar:
+      type: object
+      properties:
+        name:
+          type: string
+          example: my-avatar.jpg
+        user_id:
+          type: string
+          example: 32a1sd5fd
+        url:
+          type: string
+          example: https://storage.googleapis.com/chotuve-grupo8.appspot.com/uploads/avatars/..
 
     Error:
       type: object
