@@ -56,6 +56,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 
     delete:
@@ -83,6 +94,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /videos:
     get:
@@ -109,6 +131,17 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/OutputVideo'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       summary: Adds a new video
       tags:
@@ -139,6 +172,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /pictures:
     post:
@@ -171,6 +215,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /pictures/{id}:
     get:
@@ -197,6 +252,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 
     delete:
@@ -224,6 +290,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
     patch:
       summary: Updates avatar
       tags:
@@ -254,7 +332,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '401':
+          description: Access error
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
+  securitySchemes:
+    AuthToken:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
   schemas:
     Status:
       type: object
@@ -374,3 +468,5 @@ components:
           type: object
           readOnly: true
           example: null
+
+
