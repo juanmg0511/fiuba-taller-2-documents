@@ -1712,6 +1712,309 @@ paths:
           $ref: "#/components/responses/NotFound"
         '5XX':
           $ref: "#/components/responses/ServerError"
+  /videos/{videoId}/likes:
+    get:
+      summary: List likes
+      operationId: getVideoLikes
+      tags:
+        - likes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of likes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Reaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Post like
+      operationId: postVideoLike
+      tags:
+        - likes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete like
+      operationId: deleteVideoLike
+      tags:
+        - likes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /videos/{videoId}/dislikes:
+    get:
+      summary: List dislikes
+      operationId: getVideoDislikes
+      tags:
+        - dislikes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of dislikes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Reaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Post dislike
+      operationId: postVideoDislike
+      tags:
+        - dislikes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete dislike
+      operationId: deleteVideoDislike
+      tags:
+        - dislikes
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+  /videos/{videoId}/views:
+    get:
+      summary: List views
+      operationId: getVideoViews
+      tags:
+        - views
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: A paged array of views
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Reaction"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Post view
+      operationId: postVideoView
+      tags:
+        - views
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Delete view
+      operationId: deleteVideoView
+      tags:
+        - views
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          description: The id of the video
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          headers:
+            X-Request-ID:
+              schema:
+                type: string
+              description: Request unique identifier.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OK"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '5XX':
+          $ref: "#/components/responses/ServerError"
   /comments:
     get:
       summary: List comments
@@ -2269,10 +2572,18 @@ components:
           $ref: '#/components/schemas/Media'
         location:
           $ref: '#/components/schemas/Location'
-        statistics:
-          type: object
-          format: json
+        count_likes:
+          type: integer
           readOnly: true
+          example: 0
+        count_dislikes:
+          type: integer
+          readOnly: true
+          example: 0
+        count_views:
+          type: integer
+          readOnly: true
+          example: 0
         user:
           type: string
           example: testuser
@@ -2313,6 +2624,17 @@ components:
           format: date-time
           readOnly: true
         date_updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Reaction:
+      type: object
+      properties:
+        user:
+          type: string
+          example: testuser
+          readOnly: true
+        date_created:
           type: string
           format: date-time
           readOnly: true
