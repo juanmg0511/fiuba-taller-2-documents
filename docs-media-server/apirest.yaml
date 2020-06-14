@@ -379,6 +379,7 @@ components:
         - date_created
         - size
         - type
+        - user_id
       properties:
         user_id:
           type: string
@@ -410,7 +411,6 @@ components:
         user_id:
           type: string
           example: 32a1sd5fd
-          required: true
         video_id:
           type: string
           example: 32a1sd5fd
