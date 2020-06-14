@@ -380,6 +380,10 @@ components:
         - size
         - type
       properties:
+        user_id:
+          type: string
+          example: 32a1sd5fd
+          required: true
         video_id:
           type: string
           example: 32a1sd5fd
@@ -403,6 +407,10 @@ components:
     OutputVideo:
       type: object
       properties:
+        user_id:
+          type: string
+          example: 32a1sd5fd
+          required: true
         video_id:
           type: string
           example: 32a1sd5fd
