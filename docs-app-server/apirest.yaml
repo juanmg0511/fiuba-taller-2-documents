@@ -2588,6 +2588,18 @@ components:
           type: string
           example: testuser
           readOnly: true
+        user_like:
+          type: boolean
+          example: true
+          readOnly: true
+        user_dislike:
+          type: boolean
+          example: false
+          readOnly: true
+        user_view:
+          type: boolean
+          example: true
+          readOnly: true
         date_created:
           type: string
           format: date-time
